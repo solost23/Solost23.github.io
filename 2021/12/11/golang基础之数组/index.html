@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      golang基础之数组 | Solost23&#39;s blog
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Solost23's blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>golang基础之数组</h2>
+  <p class="post-date">2021-12-11</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p>本文主要介绍<code>golang</code>中<code>Array</code>以及它的基本使用。</p>
+<h3 id="<center>定义</center>"><center>定义</center></h3>
+<p>数组是一种数据类型元素的集合。在<code>golang</code>中数组从声明时就确定，使用时可以修改数组成员，但是数组大小不可变化。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> arrayName [arrayCount]T</span><br></pre></td></tr></table></figure>
+<p>Eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a [<span class="number">3</span>]<span class="keyword">int</span></span><br></pre></td></tr></table></figure>
+<p>数组长度必须是常量，并且长度是数组类型的一部分。一旦定义，长度不可变。<code>[5]int</code>和<code>[10]int</code>是不同类型。eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a [<span class="number">3</span>]<span class="keyword">int</span></span><br><span class="line"><span class="keyword">var</span> b [<span class="number">4</span>]<span class="keyword">int</span></span><br><span class="line"><span class="comment">// 不可以，因为ab类型不同</span></span><br><span class="line">a = b </span><br></pre></td></tr></table></figure>
+<h3 id="<center>数组初始化</center>"><center>数组初始化</center></h3>
+<h4 id="<font-color=red>方式一</font>"><font color=red>方式一</font></h4>
+<p>初始化数组时可以使用初始化列表来设置数组元素的值，eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">arrayDemo1</span><span class="params">()</span></span> &#123;</span><br><span class="line">  <span class="comment">// 数组会初始化为int类型的零值</span></span><br><span class="line">  <span class="keyword">var</span> testArray [<span class="number">3</span>]<span class="keyword">int</span></span><br><span class="line">  <span class="comment">// 使用指定的初始值完成初始化</span></span><br><span class="line">  <span class="keyword">var</span> numArray = [<span class="number">3</span>]<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>&#125;</span><br><span class="line">  <span class="comment">// 使用指定的初始值完成初始化</span></span><br><span class="line">  <span class="keyword">var</span> cityArray [<span class="number">3</span>]<span class="keyword">string</span> = [<span class="number">3</span>]<span class="keyword">string</span>&#123;<span class="string">&quot;北京&quot;</span>, <span class="string">&quot;上海&quot;</span>, <span class="string">&quot;深圳&quot;</span>&#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// [0 0 0]</span></span><br><span class="line">  fmt.Println(testArray)</span><br><span class="line">  <span class="comment">// [1 2 0]</span></span><br><span class="line">  fmt.Println(numArray)</span><br><span class="line">  <span class="comment">// [北京 上海 深圳]</span></span><br><span class="line">  fmt.Println(cityarray)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<font-color=red>方式二</font>"><font color=red>方式二</font></h3>
+<p>按照上面的方式每次都要确保提供的初始值和数组长度一致，一般情况下我们可以让编译器根据初始值的个数自行推断数组长度，eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">arrayDemo2</span><span class="params">()</span></span> &#123;</span><br><span class="line">  <span class="keyword">var</span> testArray [<span class="number">3</span>]<span class="keyword">int</span></span><br><span class="line">  <span class="keyword">var</span> numArray = [...]<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>&#125;</span><br><span class="line">  <span class="keyword">var</span> cityArray = [...]<span class="keyword">int</span>&#123;<span class="string">&quot;北京&quot;</span>&#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// [0 0 0]</span></span><br><span class="line">  fmt.Println(testArray)</span><br><span class="line">  <span class="comment">// [1 2]</span></span><br><span class="line">  fmt.Println(numArray)</span><br><span class="line">  <span class="comment">// type of numArray:[2]int</span></span><br><span class="line">  fmt.Printf(<span class="string">&quot;type of numArray:%T \n&quot;</span>, numArray)</span><br><span class="line">  <span class="comment">// [北京]</span></span><br><span class="line">  fmt.Println(cityArray)</span><br><span class="line">  <span class="comment">// type of cityArray:[1]string</span></span><br><span class="line">  fmt.Printf(<span class="string">&quot;type of cityArray:%T \n&quot;</span>, cityArray)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>方法三</font>"><font color=red>方法三</font></h4>
+<p>使用索引值来初始化数组，eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">arrayDemo3</span><span class="params">()</span></span> &#123;</span><br><span class="line">  a := [...]<span class="keyword">int</span>&#123;<span class="number">1</span>: <span class="number">1</span>, <span class="number">3</span>: <span class="number">5</span>&#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// [0 1 0 5]</span></span><br><span class="line">  fmt.Println(a)</span><br><span class="line">  <span class="comment">// type of a:[4]int</span></span><br><span class="line">  fmt.Printf(<span class="string">&quot;type of a:%T \n&quot;</span>, a)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>数组遍历</center>"><center>数组遍历</center></h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">arrayDemo4</span><span class="params">()</span></span> &#123;</span><br><span class="line">  <span class="keyword">var</span> a = [...]<span class="keyword">string</span>&#123;<span class="string">&quot;北京&quot;</span>, <span class="string">&quot;上海&quot;</span>，<span class="string">&quot;深圳&quot;</span>&#125;</span><br><span class="line">  <span class="comment">// 方法1:for循环遍历</span></span><br><span class="line">  <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="built_in">len</span>(a); i ++ &#123;</span><br><span class="line">    fmt.Println(a[i])</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 方法2:for range遍历</span></span><br><span class="line">  <span class="keyword">for</span> index, value := <span class="keyword">range</span> a &#123;</span><br><span class="line">    fmt.Println(index, value)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>多维数组</center>"><center>多维数组</center></h3>
+<p>golang支持多维数组，这里以二维数组举例。</p>
+<h4 id="<font-color=red>二维数组定义</font>"><font color=red>二维数组定义</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">arrayDemo5</span><span class="params">()</span></span> &#123;</span><br><span class="line">  a := [<span class="number">3</span>][<span class="number">2</span>]<span class="keyword">string</span>&#123;</span><br><span class="line">    &#123;<span class="string">&quot;北京&quot;</span>, <span class="string">&quot;上海&quot;</span>&#125;, </span><br><span class="line">    &#123;<span class="string">&quot;广州&quot;</span>, <span class="string">&quot;深圳&quot;</span>&#125;, </span><br><span class="line">    &#123;<span class="string">&quot;成都&quot;</span>, <span class="string">&quot;重庆&quot;</span>&#125;, </span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// [[北京 上海] [广州 深圳] [成都 重庆]]</span></span><br><span class="line">  fmt.Println(a)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color=red>注意</font>:多维数组只有第一层可以使用<code>...</code>来让编译器推导数组长度，eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">arrayDemo6</span><span class="params">()</span></span> &#123;</span><br><span class="line">  <span class="comment">// 支持</span></span><br><span class="line">  a := [...][<span class="number">2</span>]<span class="keyword">int</span> &#123;</span><br><span class="line">    &#123;<span class="number">1</span>, <span class="number">2</span>, &#125;, </span><br><span class="line">    &#123;<span class="number">3</span>, <span class="number">4</span>, &#125;, </span><br><span class="line">    &#123;<span class="number">5</span>, <span class="number">6</span>, &#125;, </span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 不支持</span></span><br><span class="line">  b := [<span class="number">3</span>][...]<span class="keyword">int</span>&#123;</span><br><span class="line">    &#123;<span class="number">1</span>, <span class="number">2</span>, &#125;, </span><br><span class="line">    &#123;<span class="number">3</span>, <span class="number">4</span>, &#125;, </span><br><span class="line">    &#123;<span class="number">5</span>, <span class="number">6</span>, &#125;, </span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>二维数组遍历</font>"><font color=red>二维数组遍历</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">arrayDemo7</span><span class="params">()</span></span> &#123;</span><br><span class="line">  <span class="comment">// 支持</span></span><br><span class="line">  a := [...][<span class="number">2</span>]<span class="keyword">int</span> &#123;</span><br><span class="line">    &#123;<span class="number">1</span>, <span class="number">2</span>, &#125;, </span><br><span class="line">    &#123;<span class="number">3</span>, <span class="number">4</span>, &#125;, </span><br><span class="line">    &#123;<span class="number">5</span>, <span class="number">6</span>, &#125;, </span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 遍历二维数组</span></span><br><span class="line">  <span class="keyword">for</span> _, v1 := <span class="keyword">range</span> a &#123;</span><br><span class="line">    <span class="keyword">for</span> _, v2 := <span class="keyword">range</span> v1 &#123;</span><br><span class="line">      fmt.Printf(<span class="string">&quot;%s \t&quot;</span>, v2)</span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Println()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color=red>注意</font>:数组是值类型，赋值和传参会复制整个数组，因此改变副本的值，不会改变本身的值。eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">modifyArray1</span><span class="params">(x [3]<span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">  x[<span class="number">0</span>] = <span class="number">100</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">modifyArray2</span><span class="params">(x [3][2]<span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">  x[<span class="number">2</span>][<span class="number">0</span>] = <span class="number">100</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  a := [<span class="number">3</span>]<span class="keyword">int</span>&#123;<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, &#125;</span><br><span class="line">  <span class="comment">// 在modifyArray1中修改的是a的副本</span></span><br><span class="line">  modifyArray(a)</span><br><span class="line">  <span class="comment">// [10 20 30]</span></span><br><span class="line">  fmt.Println(a)</span><br><span class="line">  b := [<span class="number">3</span>][<span class="number">2</span>]<span class="keyword">int</span> &#123;</span><br><span class="line">    &#123;<span class="number">1</span>, <span class="number">1</span>, &#125;, </span><br><span class="line">    &#123;<span class="number">1</span>, <span class="number">1</span>, &#125;, </span><br><span class="line">    &#123;<span class="number">1</span>, <span class="number">1</span>, &#125;, </span><br><span class="line">  &#125;</span><br><span class="line">  modifyArray2(b)</span><br><span class="line">  <span class="comment">// [[1 1] [1 1] [1 1]]</span></span><br><span class="line">  fmt.Println(b)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>数组支持<code>==</code>, <code>!=</code>操作符，因为内存总是被初始化过的。</li>
+<li>[n]*T表示指针数组, *[n]T表示数组指针。</li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/12/11/golang%E5%9F%BA%E7%A1%80%E4%B9%8B%E7%BB%93%E6%9E%84%E4%BD%93/">
+        <span class="nav-arrow">← </span>
+        
+          golang基础之结构体
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/12/11/golang%E5%9F%BA%E7%A1%80%E4%B9%8B%E5%88%87%E7%89%87/">
+        
+          golang基础之切片
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%AE%9A%E4%B9%89%3C/center%3E"><span class="toc-nav-text">定义</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E6%95%B0%E7%BB%84%E5%88%9D%E5%A7%8B%E5%8C%96%3C/center%3E"><span class="toc-nav-text">数组初始化</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E6%96%B9%E5%BC%8F%E4%B8%80%3C/font%3E"><span class="toc-nav-text">方式一</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E6%96%B9%E5%BC%8F%E4%BA%8C%3C/font%3E"><span class="toc-nav-text">方式二</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E6%96%B9%E6%B3%95%E4%B8%89%3C/font%3E"><span class="toc-nav-text">方法三</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E6%95%B0%E7%BB%84%E9%81%8D%E5%8E%86%3C/center%3E"><span class="toc-nav-text">数组遍历</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%A4%9A%E7%BB%B4%E6%95%B0%E7%BB%84%3C/center%3E"><span class="toc-nav-text">多维数组</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84%E5%AE%9A%E4%B9%89%3C/font%3E"><span class="toc-nav-text">二维数组定义</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84%E9%81%8D%E5%8E%86%3C/font%3E"><span class="toc-nav-text">二维数组遍历</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2021/12/11/golang基础之数组/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>

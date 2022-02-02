@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      golang标准库之http/template | Solost23&#39;s blog
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Solost23's blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>golang标准库之http/template</h2>
+  <p class="post-date">2021-12-21</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p>html/template 包实现了数据驱动的模板，用于生成可防止代码注入的安全的 HTML 内容。它提供了和 text/template 包相同的接口，Go 语言中输出 HTML 的场景都应使用 html/template 这个包。</p>
+<h3 id="模版与渲染"><a href="#模版与渲染" class="headerlink" title="模版与渲染"></a><center>模版与渲染</center></h3><p>在一些前后端不分离的 Web 架构中，我们通常需要在后端将一些数据渲染到<code>HTML</code>文档中，从而实现动态的网页（网页的布局和样式大致一样，但展示的内容并不一样）的效果。</p>
+<p>我们这里说的模板可以理解为事先定义好的<code>HTML</code>文档文件，模板渲染的作用机制可以简单理解为文本替换操作-使用相应的数据去替换 <code>HTML</code>文档中事先准备好的标记。很多编程语言的<code>Web</code>框架都使用各种模板引擎，比如<code>Python</code>语言的<code>Flask</code>框架中使用的<code>jinjia2</code>模板引擎。</p>
+<h3 id="golang的模板引擎"><a href="#golang的模板引擎" class="headerlink" title="golang的模板引擎"></a><center>golang的模板引擎</center></h3><p><code>golang</code>内置了文本模板引擎 text/template 和用于 HTML 文档的 html/template。它们的作用机制可以简单归纳如下：</p>
+<ul>
+<li>模板文件通常定义为<code>.tmpl</code> 或<code>.tpl</code>为后缀（也可以使用其他的后缀），必须使用 UTF8 编码。</li>
+<li>模板文件中使用&#123;&#123;和&#125;&#125;包裹和标识需要传入的数据。</li>
+<li>传给模板这样的数据就可以通过 <code>(.)</code> 来访问，如果数据是复杂类型的数据，可以通过&#123;&#123;.FieldName&#125;&#125;来访问它的字段。</li>
+<li>除&#123;&#123;和&#125;&#125;包裹的内容外，其他内容不做修改原样输出。</li>
+</ul>
+<h3 id="模板引擎的使用"><a href="#模板引擎的使用" class="headerlink" title="模板引擎的使用"></a><center>模板引擎的使用</center></h3><p>Go 语言模板引擎的使用可以分为三部分：定义模板文件、解析模板文件和模板渲染。</p>
+<h4 id="定义模板文件"><a href="#定义模板文件" class="headerlink" title="定义模板文件"></a><font color=red>定义模板文件</font></h4><p>其中，定义模板文件时需要我们按照相关语法规则去编写，后文会详细介绍。</p>
+<h4 id="解析模板文件"><a href="#解析模板文件" class="headerlink" title="解析模板文件"></a><font color=red>解析模板文件</font></h4><p>上面定义好了模板文件之后，可以使用下面的常用方法去解析模板文件，得到模板对象：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *Template)</span> <span class="title">Parse</span><span class="params">(src <span class="keyword">string</span>)</span> <span class="params">(*Template, error)</span></span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ParseFiles</span><span class="params">(filenames ...<span class="keyword">string</span>)</span> <span class="params">(*Template, error)</span></span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ParseGlob</span><span class="params">(pattern <span class="keyword">string</span>)</span> <span class="params">(*Template, error)</span></span></span><br></pre></td></tr></table></figure>
+
+<p>当然，也可以使用<code>func New (name string) *Template</code>函数创建一个名为<code>name</code>的模板对象，然后对其调用上面的方法去解析模板字符串或模板文件。</p>
+<h4 id="模板渲染"><a href="#模板渲染" class="headerlink" title="模板渲染"></a><font color=red>模板渲染</font></h4><p>渲染模板简单来说就是使用数据去填充模板，当然实际可能会复杂很多。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *Template)</span> <span class="title">Execute</span><span class="params">(wr io.Writer, data <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">error</span></span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *Template)</span> <span class="title">ExecuteTemplate</span><span class="params">(wr io.Writer, name <span class="keyword">string</span>, data <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">error</span></span></span><br></pre></td></tr></table></figure>
+
+<h4 id="基本示例"><a href="#基本示例" class="headerlink" title="基本示例"></a><font color=red>基本示例</font></h4><h5 id="定义模板文件-1"><a href="#定义模板文件-1" class="headerlink" title="定义模板文件"></a><font color=red>定义模板文件</font></h5><p>我们按照 Go 模板语法定义一个 hello.tmpl 的模板文件，内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang=&quot;zh-CN&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</span><br><span class="line">    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;</span><br><span class="line">    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;ie=edge&quot;&gt;</span><br><span class="line">    &lt;title&gt;Hello&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">    &lt;p&gt;Hello &#123;&#123;.&#125;&#125;&lt;/p&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+<h5 id="解析和渲染模板文件"><a href="#解析和渲染模板文件" class="headerlink" title="解析和渲染模板文件"></a><font color=red>解析和渲染模板文件</font></h5><p>然后我们创建一个 main.go 文件，在其中写下 HTTP.server 端代码如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.go</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">sayHello</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	<span class="comment">// 解析指定文件生成模板对象</span></span><br><span class="line">	tmpl, err := template.ParseFiles(<span class="string">&quot;./hello.tmpl&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;create template failed, err:&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 利用给定数据渲染模板，并将结果写入w</span></span><br><span class="line">	tmpl.Execute(w, <span class="string">&quot;ty&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	http.HandleFunc(<span class="string">&quot;/&quot;</span>, sayHello)</span><br><span class="line">	err := http.ListenAndServe(<span class="string">&quot;:9090&quot;</span>, <span class="literal">nil</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;HTTP server failed,err:&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将上面的 main.go 文件编译执行，然后使用浏览器访问 <a target="_blank" rel="noopener" href="http://127.0.0.1:9090/">http://127.0.0.1:9090</a> 就能看到页面上显示了 “Hello ty”。这就是一个最简单的模板渲染的示例。</p>
+<h3 id="模板语法"><a href="#模板语法" class="headerlink" title="模板语法"></a><center>模板语法</center></h3><h4 id="123-123-125-125"><a href="#123-123-125-125" class="headerlink" title="&#123;&#123; . &#125;&#125;"></a><font color=red>&#123;&#123; . &#125;&#125;</font></h4><p>模板语法都包含在&#123;&#123;和&#125;&#125;中间，其中&#123;&#123; . &#125;&#125;中的点表示当前对象。</p>
+<p>当我们传入一个结构体对象时，我们可以根据。来访问结构体的对应字段，例如：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.go</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">type</span> UserInfo <span class="keyword">struct</span> &#123;</span><br><span class="line">	Name   <span class="keyword">string</span></span><br><span class="line">	Gender <span class="keyword">string</span></span><br><span class="line">	Age    <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">sayHello</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	<span class="comment">// 解析指定文件生成模板对象</span></span><br><span class="line">	tmpl, err := template.ParseFiles(<span class="string">&quot;./hello.tmpl&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;create template failed, err:&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 利用给定数据渲染模板，并将结果写入w</span></span><br><span class="line">	user := UserInfo&#123;</span><br><span class="line">		Name:   <span class="string">&quot;ty&quot;</span>,</span><br><span class="line">		Gender: <span class="string">&quot;male&quot;</span>,</span><br><span class="line">		Age:    <span class="number">18</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	tmpl.Execute(w, user)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>模板文件 hello.tmpl 内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang=&quot;zh-CN&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</span><br><span class="line">    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;</span><br><span class="line">    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;ie=edge&quot;&gt;</span><br><span class="line">    &lt;title&gt;Hello&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">    &lt;p&gt;Hello &#123;&#123;.Name&#125;&#125;&lt;/p&gt;</span><br><span class="line">    &lt;p&gt;性别：&#123;&#123;.Gender&#125;&#125;&lt;/p&gt;</span><br><span class="line">    &lt;p&gt;年龄：&#123;&#123;.Age&#125;&#125;&lt;/p&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+<p>同理，当我们传入的变量是 map 时，也可以在模板文件中通过。根据 key 来取值。</p>
+<h4 id="注释"><a href="#注释" class="headerlink" title="注释"></a><font color=red>注释</font></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;/* a comment */&#125;&#125;</span><br><span class="line">注释，执行时会忽略。可以多行。注释不能嵌套，并且必须紧贴分界符始止。</span><br></pre></td></tr></table></figure>
+
+<h4 id="pipeline"><a href="#pipeline" class="headerlink" title="pipeline"></a><font color=red>pipeline</font></h4><p>pipeline 是指产生数据的操作。比如&#123;&#123;.&#125;&#125;&#123;&#123; .Name &#125;&#125;等。Go 的模板语法中支持使用管道符号 | 连接多个命令，用法和 unix 下的管道类似：| 前面的命令会将运算结果（或返回值）传递给后一个命令的最后一个位置。</p>
+<p>注意：并不是只有使用了 | 才是 pipeline。Go 的模板语法中，pipeline 的概念是传递数据，只要能产生数据的，都是 pipeline。</p>
+<h4 id="变量"><a href="#变量" class="headerlink" title="变量"></a><font color=red>变量</font></h4><p>我们还可以在模板中声明变量，用来保存传入模板的数据或其他语句生成的结果。具体语法如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$obj := &#123;&#123; . &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中 $obj 是变量的名字，在后续的代码中就可以使用该变量了。</p>
+<h4 id="移除空格"><a href="#移除空格" class="headerlink" title="移除空格"></a><font color=red>移除空格</font></h4><p>有时候我们在使用模板语法的时候会不可避免的引入一下空格或者换行符，这样模板最终渲染出来的内容可能就和我们想的不太一样，这个时候可以使用 &#123;&#123;- 语法去除模板内容左侧的所有空白符号，使用 -&#125;&#125; 去除模板内容右侧的所有空白符号。eg:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;- .Name -&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意<code>-</code>要紧挨&#123;&#123;和&#125;&#125; ，同时与模板值之间需要使用空格分隔。</p>
+<h4 id="条件判断"><a href="#条件判断" class="headerlink" title="条件判断"></a><font color=red>条件判断</font></h4><p>Go 模板语法中的条件判断有以下几种：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;if pipeline&#125;&#125; T1 &#123;&#123;end&#125;&#125;  // 只要pipeline有值，就执行T1</span><br><span class="line"> </span><br><span class="line">&#123;&#123;if pipeline&#125;&#125; T1 &#123;&#123;else&#125;&#125; T0 &#123;&#123;end&#125;&#125;</span><br><span class="line"> </span><br><span class="line">&#123;&#123;if pipeline&#125;&#125; T1 &#123;&#123;else if pipeline&#125;&#125; T0 &#123;&#123;end&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="range"><a href="#range" class="headerlink" title="range"></a><font color=red>range</font></h4><p>Go 的模板语法中使用 range 关键字进行遍历，有以下两种写法，其中 pipeline 的值必须是数组、切片、字典或者通道。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;range pipeline&#125;&#125; T1 &#123;&#123;end&#125;&#125;</span><br><span class="line">如果pipeline的值其长度为0，不会有任何输出</span><br><span class="line"> </span><br><span class="line">&#123;&#123;range pipeline&#125;&#125; T1 &#123;&#123;else&#125;&#125; T0 &#123;&#123;end&#125;&#125;</span><br><span class="line">如果pipeline的值其长度为0，则会执行T0。</span><br></pre></td></tr></table></figure>
+
+<p>eg:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; range $index, $hobby := .hobby &#125;&#125;</span><br><span class="line">    &lt;p&gt;idx:&#123;&#123; index &#125;&#125; - hobby:&#123;&#123; hobby &#125;&#125;&lt;/p&gt;</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="with"><a href="#with" class="headerlink" title="with"></a><font color=red>with</font></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;with pipeline&#125;&#125; T1 &#123;&#123;end&#125;&#125;</span><br><span class="line">如果pipeline为empty不产生输出，否则将dot设为pipeline的值并执行T1。不修改外面的dot。</span><br><span class="line"> </span><br><span class="line">&#123;&#123;with pipeline&#125;&#125; T1 &#123;&#123;else&#125;&#125; T0 &#123;&#123;end&#125;&#125;</span><br><span class="line">如果pipeline为empty，不改变dot并执行T0，否则dot设为pipeline的值并执行T1。</span><br></pre></td></tr></table></figure>
+
+<p>eg:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; with .m1&#125;&#125;</span><br><span class="line">    &lt;p&gt;&#123;&#123;.Name&#125;&#125;&lt;/p&gt;</span><br><span class="line">    &lt;p&gt;&#123;&#123;.Gender&#125;&#125;&lt;/p&gt;</span><br><span class="line">    &lt;p&gt;&#123;&#123;.Age&#125;&#125;&lt;/p&gt;</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="预定义函数"><a href="#预定义函数" class="headerlink" title="预定义函数"></a><font color=red>预定义函数</font></h4><p>执行模板时，函数从两个函数字典中查找：首先是模板函数字典，然后是全局函数字典。一般不在模板内定义函数，而是使用 Funcs 方法添加函数到模板里。</p>
+<p>预定义的全局函数如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">and</span><br><span class="line">    函数返回它的第一个empty参数或者最后一个参数；</span><br><span class="line">    就是说&quot;and x y&quot;等价于&quot;if x then y else x&quot;；所有参数都会执行；</span><br><span class="line">or</span><br><span class="line">    返回第一个非empty参数或者最后一个参数；</span><br><span class="line">    亦即&quot;or x y&quot;等价于&quot;if x then x else y&quot;；所有参数都会执行；</span><br><span class="line">not</span><br><span class="line">    返回它的单个参数的布尔值的否定</span><br><span class="line">len</span><br><span class="line">    返回它的参数的整数类型长度</span><br><span class="line">index</span><br><span class="line">    执行结果为第一个参数以剩下的参数为索引/键指向的值；</span><br><span class="line">    如&quot;index x 1 2 3&quot;返回x[1][2][3]的值；每个被索引的主体必须是数组、切片或者字典。</span><br><span class="line">print</span><br><span class="line">    即fmt.Sprint</span><br><span class="line">printf</span><br><span class="line">    即fmt.Sprintf</span><br><span class="line">println</span><br><span class="line">    即fmt.Sprintln</span><br><span class="line">html</span><br><span class="line">    返回与其参数的文本表示形式等效的转义HTML。</span><br><span class="line">    这个函数在html/template中不可用。</span><br><span class="line">urlquery</span><br><span class="line">    以适合嵌入到网址查询中的形式返回其参数的文本表示的转义值。</span><br><span class="line">    这个函数在html/template中不可用。</span><br><span class="line">js</span><br><span class="line">    返回与其参数的文本表示形式等效的转义JavaScript。</span><br><span class="line">call</span><br><span class="line">    执行结果是调用第一个参数的返回值，该参数必须是函数类型，其余参数作为调用该函数的参数；</span><br><span class="line">    如&quot;call .X.Y 1 2&quot;等价于go语言里的dot.X.Y(1, 2)；</span><br><span class="line">    其中Y是函数类型的字段或者字典的值，或者其他类似情况；</span><br><span class="line">    call的第一个参数的执行结果必须是函数类型的值（和预定义函数如print明显不同）；</span><br><span class="line">    该函数类型值必须有1到2个返回值，如果有2个则后一个必须是error接口类型；</span><br><span class="line">    如果有2个返回值的方法返回的error非nil，模板执行会中断并返回给调用模板执行者该错误；</span><br></pre></td></tr></table></figure>
+
+<p>eg:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; index .hobby 2 &#125;&#125;  // 返回索引为2的索引的值</span><br></pre></td></tr></table></figure>
+
+<h4 id="比较函数"><a href="#比较函数" class="headerlink" title="比较函数"></a><font color=red>比较函数</font></h4><p>布尔函数会将任何类型的零值视为假，其余视为真。</p>
+<p>下面是定义为函数的二元比较运算的集合：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">eq      如果arg1 == arg2则返回真</span><br><span class="line">ne      如果arg1 != arg2则返回真</span><br><span class="line">lt      如果arg1 &lt; arg2则返回真</span><br><span class="line">le      如果arg1 &lt;= arg2则返回真</span><br><span class="line">gt      如果arg1 &gt; arg2则返回真</span><br><span class="line">ge      如果arg1 &gt;= arg2则返回真</span><br></pre></td></tr></table></figure>
+
+<p>为了简化多参数相等检测，eq（只有 eq）可以接收 2 个或更多个参数，它会将第一个参数和其余参数依次比较，返回下式结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;eq arg1 arg2 arg3&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>比较函数只适用于基本类型（或重定义的基本类型，如 “type Celsius float32“）。但是，整数和浮点数不能相互比较。eg:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; if lt .m1.age 18 &#125;&#125;</span><br><span class="line">好好上学</span><br><span class="line">&#123;&#123; else &#125;&#125;</span><br><span class="line">好好工作</span><br><span class="line">&#123;&#123; end &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="自定义函数"><a href="#自定义函数" class="headerlink" title="自定义函数"></a><font color=red>自定义函数</font></h4><p><code>golang</code>的模板支持自定义函数:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">sayHello</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	htmlByte, err := ioutil.ReadFile(<span class="string">&quot;./hello.tmpl&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;read html failed, err:&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 自定义一个夸人的模板函数</span></span><br><span class="line">	kua := <span class="function"><span class="keyword">func</span><span class="params">(arg <span class="keyword">string</span>)</span> <span class="params">(<span class="keyword">string</span>, error)</span></span> &#123;</span><br><span class="line">                <span class="comment">// 要么有一个返回值，要么有两个返回值且第二个返回值必须是error类型</span></span><br><span class="line">		<span class="keyword">return</span> arg + <span class="string">&quot;真帅&quot;</span>, <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 采用链式操作在Parse之前调用Funcs添加自定义的kua函数</span></span><br><span class="line">	tmpl, err := template.New(<span class="string">&quot;hello&quot;</span>).Funcs(template.FuncMap&#123;<span class="string">&quot;kua&quot;</span>: kua&#125;).Parse(<span class="keyword">string</span>(htmlByte))</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;create template failed, err:&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">	user := UserInfo&#123;</span><br><span class="line">		Name:   <span class="string">&quot;ty&quot;</span>,</span><br><span class="line">		Gender: <span class="string">&quot;male&quot;</span>,</span><br><span class="line">		Age:    <span class="number">18</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 使用user渲染模板，并将结果写入w</span></span><br><span class="line">	tmpl.Execute(w, user)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以在模板文件 hello.tmpl 中按照如下方式使用我们自定义的 kua 函数了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;kua .Name&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="嵌套template"><a href="#嵌套template" class="headerlink" title="嵌套template"></a><font color=red>嵌套template</font></h4><p>我们可以在 template 中嵌套其他的 template。这个 template 可以是单独的文件，也可以是通过 define 定义的 template。</p>
+<p>举个例子：t.tmpl 文件内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang=&quot;zh-CN&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</span><br><span class="line">    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;</span><br><span class="line">    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;ie=edge&quot;&gt;</span><br><span class="line">    &lt;title&gt;tmpl test&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">    </span><br><span class="line">    &lt;h1&gt;测试嵌套template语法&lt;/h1&gt;</span><br><span class="line">    &#123;&#123; .Name &#125;&#125;</span><br><span class="line">    &lt;hr&gt;</span><br><span class="line">    &#123;&#123;template &quot;ul.tmpl&quot;&#125;&#125;</span><br><span class="line">    &lt;hr&gt;</span><br><span class="line">    &#123;&#123;template &quot;ol.tmpl&quot;&#125;&#125;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br><span class="line"> </span><br><span class="line">&#123;&#123; define &quot;ol.tmpl&quot;&#125;&#125;</span><br><span class="line">&lt;ol&gt;</span><br><span class="line">    &lt;li&gt;吃饭&lt;/li&gt;</span><br><span class="line">    &lt;li&gt;睡觉&lt;/li&gt;</span><br><span class="line">    &lt;li&gt;打豆豆&lt;/li&gt;</span><br><span class="line">&lt;/ol&gt;</span><br><span class="line">&#123;&#123;end&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>u1.tmpl 文件内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;ul&gt;</span><br><span class="line">    &lt;li&gt;注释&lt;/li&gt;</span><br><span class="line">    &lt;li&gt;日志&lt;/li&gt;</span><br><span class="line">    &lt;li&gt;测试&lt;/li&gt;</span><br><span class="line">&lt;/ul&gt;</span><br></pre></td></tr></table></figure>
+
+<p>我们注册一个 templDemo 路由处理函数：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http.HandleFunc(<span class="string">&quot;/tmpl&quot;</span>, tmplDemo)</span><br></pre></td></tr></table></figure>
+
+<p>templDemo 函数的具体内容如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">tmplDemo</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">        <span class="comment">// 一定要把被包含的那个写在后面</span></span><br><span class="line">	tmpl, err := template.ParseFiles(<span class="string">&quot;./t.tmpl&quot;</span>, <span class="string">&quot;./ul.tmpl&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;create template failed, err:&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	user := UserInfo&#123;</span><br><span class="line">		Name:   <span class="string">&quot;ty&quot;</span>,</span><br><span class="line">		Gender: <span class="string">&quot;male&quot;</span>,</span><br><span class="line">		Age:    <span class="number">18</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	tmpl.Execute(w, user)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意：在解析模板时，被嵌套的模板一定要在后面解析，例如上面的示例中 t.tmpl 模板中嵌套了 u1.tmpl，所以 u1.tmpl 要在 t.tmpl 后进行解析。</p>
+<h4 id="block"><a href="#block" class="headerlink" title="block"></a><font color=red>block</font></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;block &quot;name&quot; pipeline&#125;&#125; T1 &#123;&#123;end&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>block 是定义模板&#123;&#123;defer “name”&#125;&#125; T1 &#123;&#123; end &#125;&#125;`和执行&#123;&#123; template “name” pipeline &#125;&#125;缩写，典型的用法是定义一组根模板，然后通过在其中重新定义块模板进行自定义。</p>
+<p>定义一个根模板 templates/base.tmpl，内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang=&quot;zh-CN&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;title&gt;Go Templates&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;div class=&quot;container-fluid&quot;&gt;</span><br><span class="line">    &#123;&#123;block &quot;content&quot; . &#125;&#125;&#123;&#123;end&#125;&#125;</span><br><span class="line">&lt;/div&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+<p>然后定义一个<code>templates/index.tmpl</code>，” 继承 “ base.tmpl，然后重新定义块模板：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;template &quot;base.tmpl&quot; . &#125;&#125;</span><br><span class="line"> </span><br><span class="line">&#123;&#123;define &quot;content&quot;&#125;&#125;</span><br><span class="line">    &lt;div&gt;Hello world!&lt;/div&gt;</span><br><span class="line">&#123;&#123;end&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后使用 template.ParseGlob 按照正则匹配规则解析模板文件，然后通过 ExecuteTemplate 渲染指定的模板：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">index</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span>&#123;</span><br><span class="line">	tmpl, err := template.ParseGlob(<span class="string">&quot;templates/*.tmpl&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;create template failed, err:&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	err = tmpl.ExecuteTemplate(w, <span class="string">&quot;index.tmpl&quot;</span>, <span class="literal">nil</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;render template failed, err:&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果我们的模板名称冲突了，例如不同业务线下都定义了一个<code>index.tmpl</code>模板，我们可以通过下面两种方法来解决：</p>
+<ul>
+<li>在模板文件开头使用&#123;&#123;define 模板名&#125;&#125;语句显式的为模板命名。</li>
+<li>可以把模板文件存放在<code>templates</code>文件夹下面的不同目录中，然后使用<code>template.ParseGlob (&quot;templates/**/*.tmpl&quot;)</code>解析模板。</li>
+</ul>
+<h4 id="修改默认的标识符"><a href="#修改默认的标识符" class="headerlink" title="修改默认的标识符"></a><font color=red>修改默认的标识符</font></h4><p>Go 标准库的模板引擎使用的花括号&#123;&#123;和&#125;&#125;作为标识，而许多前端框架（如 Vue 和 Angular JS）也使用&#123;&#123;和&#125;&#125;作为标识符，所以当我们同时使用 Go 语言模板引擎和以上前端框架时就会出现冲突，这个时候我们需要修改标识符，修改前端或者修改 Go 语言的。这里演示如何修改 Go 语言模板引擎默认的标识符：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">template.New(<span class="string">&quot;index.tmpl&quot;</span>).Delims(<span class="string">&quot;&#123;[&quot;</span>, <span class="string">&quot;]&#125;&quot;</span>).ParseFiles(<span class="string">&quot;./index.tmpl&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="text-template与html-template的区别"><a href="#text-template与html-template的区别" class="headerlink" title="text/template与html/template的区别"></a><center><code>text/template</code>与<code>html/template</code>的区别</center></h3><p><code>html/template</code>针对的是需要返回<code>HTML</code>内容的场景，在模板渲染过程中对一些有风险的内容进行转义，以此来防范跨站脚本（xss）攻击。例如，我定义下面的模板文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang=&quot;zh-CN&quot;&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;meta charset=&quot;UTF-8&quot;&gt;</span><br><span class="line">    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;</span><br><span class="line">    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;ie=edge&quot;&gt;</span><br><span class="line">    &lt;title&gt;Hello&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">    &#123;&#123;.&#125;&#125;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这个时候传入一段 JS 代码并使用<code>html/template</code>去渲染该文件，会在页面上显示出转义后的<code> JS</code>内容。<code>&lt;script&gt;alert (&#39; 哈哈哈 &#39;)&lt;/scripy &gt;</code>这就是 html/template 为我们做的事情。但是在某些场景下，我们如果相信用户输入的内容，不想转义的话，可以自行编写一个<code>safe</code>函数，手动返回一个<code>template.HTML</code>类型的内容。示例如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">xss</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span>&#123;</span><br><span class="line">	tmpl,err := template.New(<span class="string">&quot;xss.tmpl&quot;</span>).Funcs(template.FuncMap&#123;</span><br><span class="line">		<span class="string">&quot;safe&quot;</span>: <span class="function"><span class="keyword">func</span><span class="params">(s <span class="keyword">string</span>)</span><span class="title">template</span>.<span class="title">HTML</span></span> &#123;</span><br><span class="line">			<span class="keyword">return</span> template.HTML(s)</span><br><span class="line">		&#125;,</span><br><span class="line">	&#125;).ParseFiles(<span class="string">&quot;./xss.tmpl&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;create template failed, err:&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	jsStr := <span class="string">`&lt;script&gt;alert(&#x27;嘿嘿嘿&#x27;)&lt;/script&gt;`</span></span><br><span class="line">	err = tmpl.Execute(w, jsStr)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(err)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样我们只需要在模板文件不需要转义的内容后面使用我们定义好的<code>safe</code>函数就可以了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; . | safe &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bnet-http/">
+        <span class="nav-arrow">← </span>
+        
+          golang标准库之net/http
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bflag/">
+        
+          golang标准库之flag
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%A8%A1%E7%89%88%E4%B8%8E%E6%B8%B2%E6%9F%93"><span class="toc-nav-text">模版与渲染</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#golang%E7%9A%84%E6%A8%A1%E6%9D%BF%E5%BC%95%E6%93%8E"><span class="toc-nav-text">golang的模板引擎</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%A8%A1%E6%9D%BF%E5%BC%95%E6%93%8E%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-nav-text">模板引擎的使用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%AE%9A%E4%B9%89%E6%A8%A1%E6%9D%BF%E6%96%87%E4%BB%B6"><span class="toc-nav-text">定义模板文件</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E8%A7%A3%E6%9E%90%E6%A8%A1%E6%9D%BF%E6%96%87%E4%BB%B6"><span class="toc-nav-text">解析模板文件</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%A8%A1%E6%9D%BF%E6%B8%B2%E6%9F%93"><span class="toc-nav-text">模板渲染</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%A4%BA%E4%BE%8B"><span class="toc-nav-text">基本示例</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E5%AE%9A%E4%B9%89%E6%A8%A1%E6%9D%BF%E6%96%87%E4%BB%B6-1"><span class="toc-nav-text">定义模板文件</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%E8%A7%A3%E6%9E%90%E5%92%8C%E6%B8%B2%E6%9F%93%E6%A8%A1%E6%9D%BF%E6%96%87%E4%BB%B6"><span class="toc-nav-text">解析和渲染模板文件</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%A8%A1%E6%9D%BF%E8%AF%AD%E6%B3%95"><span class="toc-nav-text">模板语法</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#123-123-125-125"><span class="toc-nav-text">{{ . }}</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%B3%A8%E9%87%8A"><span class="toc-nav-text">注释</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#pipeline"><span class="toc-nav-text">pipeline</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%8F%98%E9%87%8F"><span class="toc-nav-text">变量</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E7%A7%BB%E9%99%A4%E7%A9%BA%E6%A0%BC"><span class="toc-nav-text">移除空格</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%9D%A1%E4%BB%B6%E5%88%A4%E6%96%AD"><span class="toc-nav-text">条件判断</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#range"><span class="toc-nav-text">range</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#with"><span class="toc-nav-text">with</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E9%A2%84%E5%AE%9A%E4%B9%89%E5%87%BD%E6%95%B0"><span class="toc-nav-text">预定义函数</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%AF%94%E8%BE%83%E5%87%BD%E6%95%B0"><span class="toc-nav-text">比较函数</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%87%BD%E6%95%B0"><span class="toc-nav-text">自定义函数</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%B5%8C%E5%A5%97template"><span class="toc-nav-text">嵌套template</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#block"><span class="toc-nav-text">block</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E4%BF%AE%E6%94%B9%E9%BB%98%E8%AE%A4%E7%9A%84%E6%A0%87%E8%AF%86%E7%AC%A6"><span class="toc-nav-text">修改默认的标识符</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#text-template%E4%B8%8Ehtml-template%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-nav-text">text&#x2F;template与html&#x2F;template的区别</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2021/12/21/golang标准库之http-template/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      golang标准库之strconv | Solost23&#39;s blog
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Solost23's blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>golang标准库之strconv</h2>
+  <p class="post-date">2021-12-21</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p><code>golang</code>中<code>strconv</code>包实现了基本数据类型与其字符串表示的转换。</p>
+<h3 id="<center>string与int类型转换</center>"><center>string与int类型转换</center></h3>
+<h4 id="<font-color=red>atoi()</font>"><font color=red>Atoi()</font></h4>
+<p>Atoi () 函数用于将字符串类型的整数转化为 int 类型，函数签名如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Atoi</span><span class="params">(s <span class="keyword">string</span>)</span> <span class="params">(i <span class="keyword">int</span>, err error)</span></span></span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>itoa()</font>"><font color=red>Itoa()</font></h4>
+<p>Itoa () 函数用于将 int 类型数据转换为对应的字符串表示，具体的函数签名如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Itoa</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="title">string</span></span></span><br></pre></td></tr></table></figure>
+<h3 id="<center>parse系列函数</center>"><center>Parse系列函数</center></h3>
+<p>Parse 系列函数用于转换字符串为给定类型的值：ParseBool ()、ParseFloat ()、ParseInt ()、ParseUint ()。</p>
+<h4 id="<font-color=red>parsebool()</font>"><font color=red>ParseBool()</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ParseBool</span><span class="params">(str <span class="keyword">string</span>)</span> <span class="params">(value <span class="keyword">bool</span>, err error)</span></span></span><br></pre></td></tr></table></figure>
+<p>返回字符串表示的 bool 值。它接受 1、0、t、f、T、F、true、false、TRUE、FALSE；否则返回错误。</p>
+<h4 id="<font-color=red>parseint()</font>"><font color=red>ParseInt()</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ParseInt</span><span class="params">(s <span class="keyword">string</span>, base <span class="keyword">int</span>, bitSize <span class="keyword">int</span>)</span> <span class="params">(i <span class="keyword">int64</span>, err error)</span></span></span><br></pre></td></tr></table></figure>
+<p>返回字符串表示的整数值，接受正负号。</p>
+<p>参数介绍：</p>
+<ul>
+<li>base 指定进制（2~36），如果 base 为 0，则会从字符串前置判断，“0x” 是 16 进制，否则是 10 进制；</li>
+<li>bigSize 指定结果必须能无溢出赋值的整数类型，0、8、16、32、64 分别代表 int、int8、int16、int32、int64；</li>
+<li>返回的 err 是 * NumErr 类型的，如果语法有误，err.Error = ErrSyntax；如果结果超出类型范围 err.Error = ErrRange。</li>
+</ul>
+<h4 id="<font-color=red>parseuint()</font>"><font color=red>ParseUint()</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ParseUint</span><span class="params">(s <span class="keyword">string</span>, base <span class="keyword">int</span>, bitSize <span class="keyword">int</span>)</span> <span class="params">(n <span class="keyword">uint64</span>, err error)</span></span></span><br></pre></td></tr></table></figure>
+<p>ParseUint 类型 ParseInt，但不接受正负号，用于无符号整型。</p>
+<h4 id="<font-color=red>parsefloat()</font>"><font color=red>ParseFloat()</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ParseFloat</span><span class="params">(s <span class="keyword">string</span>, bitSize <span class="keyword">int</span>)</span> <span class="params">(f <span class="keyword">float64</span>, err error)</span></span></span><br></pre></td></tr></table></figure>
+<p>解析一个表示浮点数的字符串并返回其值。</p>
+<p>如果 s 合乎语法规则，函数会返回最为接近 s 表示值的一个浮点数（使用 IEEE754 规范舍入）。</p>
+<p>bitSize 制定了期望的接收类型，32 是 float32（返回值可以不改变精确值的赋值给 float32），64 是 float64；</p>
+<p>返回值 err 是 * NumErr 类型的，语法有误的，err.Error = ErrSyntax；结果超出表示范围的，返回值 f 为正负 Inf，err.Error = ErrRange。</p>
+<h4 id="<font-color=red>代码示例</font>"><font color=red>代码示例</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">b, err := strconv.ParseBool(<span class="string">&quot;true&quot;</span>)</span><br><span class="line">f, err := strconv.ParseFloat(<span class="string">&quot;3.1415&quot;</span>, <span class="number">64</span>)</span><br><span class="line">i, err := strconv.ParseInt(<span class="string">&quot;-2&quot;</span>, <span class="number">10</span>, <span class="number">64</span>)</span><br><span class="line">u, err := strconv.ParseUint(<span class="string">&quot;2&quot;</span>, <span class="number">10</span>, <span class="number">64</span>)</span><br></pre></td></tr></table></figure>
+<p>这些函数都有两个返回值，第一个返回值是转换后的值，第二个返回值为转化失败的错误信息。</p>
+<h3 id="<center>format系列函数</center>"><center>Format系列函数</center></h3>
+<p>Format 系列函数实现了将给定类型数据格式化为 string 类型数据的功能。</p>
+<h4 id="<font-color=red>formatbool()</font>"><font color=red>FormatBool()</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">FormatBool</span><span class="params">(b <span class="keyword">bool</span>)</span> <span class="title">string</span></span></span><br></pre></td></tr></table></figure>
+<p>根据 b 的值返回 “true” 或 “false”</p>
+<h4 id="<font-color=red>formatint()</font>"><font color=red>FormatInt()</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">FormatInt</span><span class="params">(i <span class="keyword">int64</span>, base <span class="keyword">int</span>)</span> <span class="title">string</span></span></span><br></pre></td></tr></table></figure>
+<p>返回 i 的 base 进制的字符串表示。base 必须在 2~36 之间，结果中会使用小写字母 ‘a’~‘z’ 表示大于 10 的数字。</p>
+<h4 id="<font-color=red>formatuint()</font>"><font color=red>FormatUint()</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">FormatUint</span><span class="params">(i <span class="keyword">uint64</span>, base <span class="keyword">int</span>)</span> <span class="title">string</span></span></span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>formatfloat()</font>"><font color=red>FormatFloat()</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">FormatFloat</span><span class="params">(f <span class="keyword">float64</span>, fmt <span class="keyword">byte</span>, prec, bitSize <span class="keyword">int</span>)</span> <span class="title">string</span></span></span><br></pre></td></tr></table></figure>
+<p>函数将浮点数表示为字符串并返回。</p>
+<p>bitSize 表示 f 的来源类型（32：float32、64：float64），会据此进行舍入。</p>
+<p>fmt 表示格式：’f’（-ddd.dddd）、’b’（-ddddp±ddd，指数为二进制）、’e’（-d.dddde±dd，十进制指数）、’E’（-d.ddddE±dd，十进制指数）、’g’（指数很大时用’e’格式，否则’f’格式）、’G’（指数很大时用’E’格式，否则’f’格式）。</p>
+<p>prec 控制精度（排除指数部分）：对’f’、’e’、’E’，它表示小数点后的数字个数；对’g’、’G’，它控制总的数字个数。如果 prec 为 - 1，则代表使用最少数量的、但又必需的数字来表示 f。eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">s1 := strconv.FormatBool(<span class="literal">true</span>)</span><br><span class="line">s2 := strconv.FormatFloat(<span class="number">3.1415</span>, <span class="string">&#x27;E&#x27;</span>, <span class="number">-1</span>, <span class="number">64</span>)</span><br><span class="line">s3 := strconv.FormatInt(<span class="number">-2</span>, <span class="number">16</span>)</span><br><span class="line">s4 := strconv.FormatUint(<span class="number">2</span>, <span class="number">16</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="<center>其它</center>"><center>其它</center></h3>
+<h4 id="<font-color=red>isprint()</font>"><font color=red>IsPrint()</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">IsPrint</span><span class="params">(r <span class="keyword">rune</span>)</span> <span class="title">bool</span></span></span><br></pre></td></tr></table></figure>
+<p>返回一个字符是否是可打印的，和 unicode.IsPrint 一样，r 必须是：字母（广义）、数字、标点、符号、ASCII 空格。</p>
+<h4 id="<font-color=red>canbackquote()</font>"><font color=red>CanBackquote()</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">CanBackquote</span><span class="params">(s <span class="keyword">string</span>)</span> <span class="title">bool</span></span></span><br></pre></td></tr></table></figure>
+<p>返回字符串 s 是否可以不被修改的表示为一个单行的、没有空格和 tab 之外控制字符的反引号字符串。</p>
+<h4 id="<font-color=red>其它</font>"><font color=red>其它</font></h4>
+<p>除上文列出的函数外，strconv 包中还有 Append 系列、Quote 系列等函数。具体用法可查看<a target="_blank" rel="noopener" href="https://golang.org/pkg/strconv/">官方文档</a>。</p>
+<h3 id="<center>产生随机数练习</center>"><center>产生随机数练习</center></h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="comment">// 随机数种子，程序每次执行，产生的随机数都不一样</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">100</span>; i++ &#123;</span><br><span class="line">		r1 := rand.Int()    <span class="comment">// int的数字范围</span></span><br><span class="line">		r2 := rand.Intn(<span class="number">10</span>) <span class="comment">// [0, n)  返回int型</span></span><br><span class="line">		fmt.Println(r1, r2)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8B%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/">
+        <span class="nav-arrow">← </span>
+        
+          golang基础之文件操作
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bnet-http/">
+        
+          golang标准库之net/http
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Estring%E4%B8%8Eint%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%3C/center%3E"><span class="toc-nav-text">string与int类型转换</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eatoi()%3C/font%3E"><span class="toc-nav-text">Atoi()</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eitoa()%3C/font%3E"><span class="toc-nav-text">Itoa()</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Eparse%E7%B3%BB%E5%88%97%E5%87%BD%E6%95%B0%3C/center%3E"><span class="toc-nav-text">Parse系列函数</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eparsebool()%3C/font%3E"><span class="toc-nav-text">ParseBool()</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eparseint()%3C/font%3E"><span class="toc-nav-text">ParseInt()</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eparseuint()%3C/font%3E"><span class="toc-nav-text">ParseUint()</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eparsefloat()%3C/font%3E"><span class="toc-nav-text">ParseFloat()</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B%3C/font%3E"><span class="toc-nav-text">代码示例</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Eformat%E7%B3%BB%E5%88%97%E5%87%BD%E6%95%B0%3C/center%3E"><span class="toc-nav-text">Format系列函数</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eformatbool()%3C/font%3E"><span class="toc-nav-text">FormatBool()</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eformatint()%3C/font%3E"><span class="toc-nav-text">FormatInt()</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eformatuint()%3C/font%3E"><span class="toc-nav-text">FormatUint()</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eformatfloat()%3C/font%3E"><span class="toc-nav-text">FormatFloat()</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%85%B6%E5%AE%83%3C/center%3E"><span class="toc-nav-text">其它</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eisprint()%3C/font%3E"><span class="toc-nav-text">IsPrint()</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Ecanbackquote()%3C/font%3E"><span class="toc-nav-text">CanBackquote()</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%85%B6%E5%AE%83%3C/font%3E"><span class="toc-nav-text">其它</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E4%BA%A7%E7%94%9F%E9%9A%8F%E6%9C%BA%E6%95%B0%E7%BB%83%E4%B9%A0%3C/center%3E"><span class="toc-nav-text">产生随机数练习</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2021/12/21/golang标准库之strconv/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>

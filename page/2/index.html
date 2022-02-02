@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Solost23&#39;s blog
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Solost23's blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link active">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link mobile-active">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <main class="app-body">
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/12/21/Gin%E6%A1%86%E6%9E%B6%E6%9E%81%E9%80%9F%E6%8C%87%E5%8D%97/">Gin框架极速指南</a>
+      </h2>
+      <p class="article-date">December 21, 2021</p>
+      
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          Gin 是一个用 Go 语言编写的 web 微框架，封装比较优雅，API 友好，具有快速灵活，容错方便等特点。它是一个类似于 martini 但拥有更好性能的 API 框架，由于使用了 httpprouter，速度提高了近 40 倍。如果你是性能和高效的追求者，你会爱上 Gin。
+Gin框架 ...
+        
+      </div>
+      <a class="more" href="/2021/12/21/Gin%E6%A1%86%E6%9E%B6%E6%9E%81%E9%80%9F%E6%8C%87%E5%8D%97/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/12/21/golang%E5%9F%BA%E7%A1%80%E4%B9%8B%E6%8C%87%E9%92%88/">golang基础之指针</a>
+      </h2>
+      <p class="article-date">December 21, 2021</p>
+      
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          区别于C/C++中的指针，golang中的指针不支持偏移和计算，是安全指针，搞明白golang中的指针需要先知道三个概念:指针地址、指针类型和指针取值。
+golang中的指针
+任何程序数据载入内存后，在内存中都有他们的地址，这就是指针。而为了保存一个数据在内存中的地址，我们就需要指针变量。
+ ...
+        
+      </div>
+      <a class="more" href="/2021/12/21/golang%E5%9F%BA%E7%A1%80%E4%B9%8B%E6%8C%87%E9%92%88/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bcontext/">golang标准库之context</a>
+      </h2>
+      <p class="article-date">December 21, 2021</p>
+      
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          在 Go http 包的 Server 中，每一个请求都有一个对应的 goroutine 去处理。请求处理函数通常会启动额外的 goroutine 用来访问后端服务，比如数据库和 RPC 服务。用来处理一个请求的 goroutine 通常需要访问一些与请求特定的数据，比如终端用户的身份认证信 ...
+        
+      </div>
+      <a class="more" href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bcontext/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bflag/">golang标准库之flag</a>
+      </h2>
+      <p class="article-date">December 21, 2021</p>
+      
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          golang内置的flag包实现了命令行参数的解析，flag包使得开发命令行工具更加简单。
+os.Args
+如果只是简单的想要获取命令行参数，可以像下面的代码示例一样使用os.Args来获取命令行参数。
+12345678910111213141516package main import ( ...
+        
+      </div>
+      <a class="more" href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bflag/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bhttp-template/">golang标准库之http/template</a>
+      </h2>
+      <p class="article-date">December 21, 2021</p>
+      
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          html/template 包实现了数据驱动的模板，用于生成可防止代码注入的安全的 HTML 内容。它提供了和 text/template 包相同的接口，Go 语言中输出 HTML 的场景都应使用 html/template 这个包。
+模版与渲染在一些前后端不分离的 Web 架构中，我们通常 ...
+        
+      </div>
+      <a class="more" href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bhttp-template/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bnet-http/">golang标准库之net/http</a>
+      </h2>
+      <p class="article-date">December 21, 2021</p>
+      
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          golang内置的net/http包提供了HTTP客户端和服务端的实现。
+HTTP协议
+超文本传输协议（HTTP, HyperText Transfer Protocol）是互联网上最为广泛的一种网络传输协议，所有的 WWW 文件都必须遵守这个标准。设计 HTTP 最初的目的是为了提供一种发 ...
+        
+      </div>
+      <a class="more" href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bnet-http/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bstrconv/">golang标准库之strconv</a>
+      </h2>
+      <p class="article-date">December 21, 2021</p>
+      
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          golang中strconv包实现了基本数据类型与其字符串表示的转换。
+string与int类型转换
+Atoi()
+Atoi () 函数用于将字符串类型的整数转化为 int 类型，函数签名如下：
+1func Atoi(s string) (i int, err error)
+Itoa()
+I ...
+        
+      </div>
+      <a class="more" href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bstrconv/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8B%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/">golang基础之文件操作</a>
+      </h2>
+      <p class="article-date">December 21, 2021</p>
+      
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          打开和关闭文件
+os.Open()函数能打开一个文件，返回一个*File和一个err。对得到的文件实例调用Close()方法能关闭文件。
+1234567891011121314151617package main import (	&quot;fmt&quot;	&quot;os&quot; ...
+        
+      </div>
+      <a class="more" href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8B%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/12/21/sqlx%E5%BA%93%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/">sqlx库使用指南</a>
+      </h2>
+      <p class="article-date">December 21, 2021</p>
+      
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          在项目中我们通常可能会使用 database/sql 连接 MySQL 数据库。本文借助使用 sqlx 实现批量插入数据的例子，介绍了 sqlx 中可能被忽视的 sqlx.In 和 DB.NameExec 方法。
+sqlx介绍
+在项目中我们通常会使用 database/sql 连接 MySQ ...
+        
+      </div>
+      <a class="more" href="/2021/12/21/sqlx%E5%BA%93%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/">Read more</a>
+    </article>
+  
+    <article class="article-card">
+      <h2 class="article-head">
+        <a href="/2021/12/20/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bfmt%E4%B8%8E%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6/">golang标准库之fmt与格式化字符</a>
+      </h2>
+      <p class="article-date">December 20, 2021</p>
+      
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      
+      <div class="article-summary">
+        
+          fmt包实现了类似c语言printf与·scanf的格式化I/O。主要分为向外输出内容和获取输入内容两大部分。
+向外输出
+Print
+Print 系列函数会将内容输出到系统的标准输出，区别在于 Print 函数直接输出内容，Printf 函数支持格式化输出字符串，Println 函数会在输出 ...
+        
+      </div>
+      <a class="more" href="/2021/12/20/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bfmt%E4%B8%8E%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6/">Read more</a>
+    </article>
+  
+
+  
+    <div class="guide-pager">
+  
+    <a href="/"><span class="page-arrow">← </span>Prev</a>
+  
+  
+    <a href="/page/3/">Next<span class="page-arrow"> →</span></a>
+  
+</div>
+  
+</main>
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>

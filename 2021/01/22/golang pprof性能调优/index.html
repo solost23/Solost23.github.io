@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      golang pprof性能调优 | Solost23&#39;s blog
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Solost23's blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>golang pprof性能调优</h2>
+  <p class="post-date">2021-01-22</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p>在计算机性能调试领域里，profiling 是指对应用程序的画像，画像就是应用程序使用 CPU 和内存的情况。Go 语言是一个对性能特别看重的语言，因此语言中自带了 profiling 的库，这篇文章就要讲解怎么在 golang 中做 profiling。</p>
+<h3 id="<center>golang性能调优</center>"><center>Golang性能调优</center></h3>
+<p>Go 语言项目中的性能优化主要有以下几个方面：</p>
+<ul>
+<li>CPU profile：报告程序的 CPU 使用情况，按照一定频率去采集应用程序在 CPU 和寄存器上面的数据。</li>
+<li>Memory Profile（Heap Profile）：报告程序的内存使用情况。</li>
+<li>Block Profiling：报告 goroutine 不在运行状态的情况，可以用来分析和查找死锁等性能瓶颈。</li>
+<li>Groutine Profiling：报告 goroutines 的使用情况，有哪些 goroutine，它们的调用关系是怎样的。</li>
+</ul>
+<h3 id="<center>采集性能数据</center>"><center>采集性能数据</center></h3>
+<p>Go 语言内置了获取程序的运行数据的工具，包括以下两个标准库：</p>
+<ul>
+<li>runtime/pprof：采集工具型应用运行数据进行分析。</li>
+<li>net/http/pprof：采集服务型应用运行时数据进行分析。</li>
+</ul>
+<p>pprof 开启后，每隔一段时间（10ms）就会收集下当前的堆栈信息，获取各个函数占用的 CPU 以及内存资源；最后通过对这些采样数据进行分析，形成一个性能分析报告。</p>
+<p><font color=red>注意</font>:我们只应该在性能测试的时候才在代码中引入<code>pprof</code>。</p>
+<h3 id="<center>工具型应用</center>"><center>工具型应用</center></h3>
+<p>如果你的应用程序是运行一段时间就结束退出类型。那么最好的办法是在应用退出的时候把 profiling 的报告保存到文件中，进行分析。对于这种情况，可以使用 runtime/pprof 库。首先在代码中导入 runtime/pprof 工具：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&quot;runtime/pprof&quot;</span></span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>cpu性能分析</font>"><font color=red>CPU性能分析</font></h4>
+<p>开启 CPU 性能分析：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pprof.StartCPUProfile(w io.Writer)</span><br></pre></td></tr></table></figure>
+<p>停止 CPU 性能分析：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pprof.StopCPUProfile()</span><br></pre></td></tr></table></figure>
+<p>应用执行结束后，就会生成一个文件，保存了我们的 CPU profiling 数据。得到采样数据之后，使用 go tool pprof 工具进行 CPU 性能分析。</p>
+<h4 id="<font-color=red>内存性能优化</font>"><font color=red>内存性能优化</font></h4>
+<p>记录程序的堆栈信息</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pprof.WriteHeapProfile(w io.Writer)</span><br></pre></td></tr></table></figure>
+<p>得到采样数据之后，使用 go tool pprof 工具进行内存性能分析。go tool pprof 默认是使用 -inuse_space 进行统计，还可以使用 - inuse-objects 查看分配对象的数量。</p>
+<h3 id="<center>服务型应用</center>"><center>服务型应用</center></h3>
+<p>如果你的程序是一直运行的，比如 web 应用，那么可以使用 net/http/pprof 库，它能够在提供 HTTP 服务进行分析。如果使用了默认的 http.DefaultServeMux（通常是代码直接使用 http.ListenAndServer (“0.0.0.0:8080”, nil)），只需要在你的 web server 端代码中按如下方式导入 net/http/pprof:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> _ <span class="string">&quot;net/http/pprof&quot;</span></span><br></pre></td></tr></table></figure>
+<p>如果你使用自己定义的 Mux，则需要手动注册一些路由规则：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">r.HandleFunc(<span class="string">&quot;/debug/pprof/&quot;</span>, pprof.Index)</span><br><span class="line">r.HandleFunc(<span class="string">&quot;/debug/pprof/cmdline&quot;</span>, pprof.Cmdline)</span><br><span class="line">r.HandleFunc(<span class="string">&quot;/debug/pprof/profile&quot;</span>, pprof.Profile)</span><br><span class="line">r.HandleFunc(<span class="string">&quot;/debug/pprof/symbol&quot;</span>, pprof.Symbol)</span><br><span class="line">r.HandleFunc(<span class="string">&quot;/debug/pprof/trace&quot;</span>, pprof.Trace)</span><br></pre></td></tr></table></figure>
+<p>如果你使用的是 gin 框架，那么推荐使用 <a target="_blank" rel="noopener" href="https://github.com/gin-contrib/pprof">github.com/gin-contrib/pprof</a>，在代码中通过以下命令注册 pprof 相关路由：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pprof.Register(router)</span><br></pre></td></tr></table></figure>
+<p>不管哪种方式，你的 HTTP 服务都会多出 /debug/pprof endpoint，访问它会得到类似下面内容：</p>
+<p><img src="images/pprof2.png" alt=""></p>
+<p>这个路径下还有几个子页面：</p>
+<ul>
+<li>/debug/pprof/profile：访问这个链接会自动进行 CPU profiling，持续 30s，并生成一个文件供下载</li>
+<li>/debug/pprof/heap： Memory Profiling 的路径，访问这个链接会得到一个内存 Profiling 结果的文件</li>
+<li>/debug/pprof/block：block Profiling 的路径</li>
+<li>/debug/pprof/goroutines：运行的 goroutines 列表，以及调用关系</li>
+</ul>
+<h3 id="<center>go-tool pprof命令</center>"><center>go tool pprof命令</center></h3>
+<p>不管是工具型应用还是服务型应用，我们使用相应的 pprof 库获取数据之后，下一步都要对这些数据进行分析，我们可以使用 go tool pprof 命令行工具。go tool pprof 最简单的使用方式为：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> tool pprof [binary] [source]</span><br></pre></td></tr></table></figure>
+<p>其中：</p>
+<ul>
+<li>binary 是应用的二进制文件，用来解析各种符号；</li>
+<li>source 表示 profile 数据的来源，可以是本地的文件，也可以是 http 地址。</li>
+</ul>
+<p><font color=red>注意</font>:获取的 Profiling 数据是动态的，要想获得有效的数据，请保证应用处于较大的负载（比如正在生成中运行的服务，或者通过其他工具模拟访问压力）。否则如果应用处于空闲状态，得到的结果可能没有任何意义。</p>
+<h3 id="<center>具体示例</center>"><center>具体示例</center></h3>
+<p>我们先来写一段有问题的代码：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// runtime_pprof/main.go</span></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;flag&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;os&quot;</span></span><br><span class="line">	<span class="string">&quot;runtime/pprof&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="comment">// 一段有问题的代码</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">logicCode</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> c <span class="keyword">chan</span> <span class="keyword">int</span></span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> v := &lt;-c:</span><br><span class="line">			fmt.Printf(<span class="string">&quot;recv from chan, value:%v\n&quot;</span>, v)</span><br><span class="line">		<span class="keyword">default</span>:</span><br><span class="line"> </span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> isCPUPprof <span class="keyword">bool</span></span><br><span class="line">	<span class="keyword">var</span> isMemPprof <span class="keyword">bool</span></span><br><span class="line"> </span><br><span class="line">	flag.BoolVar(&amp;isCPUPprof, <span class="string">&quot;cpu&quot;</span>, <span class="literal">false</span>, <span class="string">&quot;turn cpu pprof on&quot;</span>)</span><br><span class="line">	flag.BoolVar(&amp;isMemPprof, <span class="string">&quot;mem&quot;</span>, <span class="literal">false</span>, <span class="string">&quot;turn mem pprof on&quot;</span>)</span><br><span class="line">	flag.Parse()</span><br><span class="line"> </span><br><span class="line">	<span class="keyword">if</span> isCPUPprof &#123;</span><br><span class="line">		file, err := os.Create(<span class="string">&quot;./cpu.pprof&quot;</span>)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			fmt.Printf(<span class="string">&quot;create cpu pprof failed, err:%v\n&quot;</span>, err)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		pprof.StartCPUProfile(file)</span><br><span class="line">		<span class="keyword">defer</span> pprof.StopCPUProfile()</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">8</span>; i++ &#123;</span><br><span class="line">		<span class="keyword">go</span> logicCode()</span><br><span class="line">	&#125;</span><br><span class="line">	time.Sleep(<span class="number">20</span> * time.Second)</span><br><span class="line">	<span class="keyword">if</span> isMemPprof &#123;</span><br><span class="line">		file, err := os.Create(<span class="string">&quot;./mem.pprof&quot;</span>)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			fmt.Printf(<span class="string">&quot;create mem pprof failed, err:%v\n&quot;</span>, err)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		pprof.WriteHeapProfile(file)</span><br><span class="line">		file.Close()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过 flag 我们可以在命令行控制是否开启 CPU 和 Mem 的性能分析。将上面的代码保存并编译成 runtime_pprof 可执行文件，执行时加上 - cpu=true 命令行参数，如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\ASUS\<span class="keyword">go</span>\src\calc\day09\runtime_pprof&gt;runtime_pprof.exe -cpu=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<p>等待 30 秒会在当前目录下生成一个 cpu.pprof 文件。</p>
+<h4 id="<font-color=red>命令行交互界面</font>"><font color=red>命令行交互界面</font></h4>
+<p>我们使用 go 工具链里的 pprof 来分析一下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> tool pprof cpu.pprof</span><br></pre></td></tr></table></figure>
+<p>执行上面的代码会进入交互界面：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\ASUS\<span class="keyword">go</span>\src\calc\day09\runtime_pprof&gt;<span class="keyword">go</span> tool pprof cpu.pprof</span><br><span class="line">Type: cpu</span><br><span class="line">Time: Mar <span class="number">20</span>, <span class="number">2021</span> at <span class="number">9</span>:<span class="number">47</span>pm (CST)</span><br><span class="line">Duration: <span class="number">20.29</span>s, Total samples = <span class="number">2.54</span>mins (<span class="number">749.71</span>%)</span><br><span class="line">Entering interactive mode (<span class="keyword">type</span> <span class="string">&quot;help&quot;</span> <span class="keyword">for</span> commands, <span class="string">&quot;o&quot;</span> <span class="keyword">for</span> options)</span><br><span class="line">(pprof)</span><br></pre></td></tr></table></figure>
+<p>我们可以在交互界面输入 top3 来查看程序中占用 CPU 前 3 位的函数：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">(pprof) top3</span><br><span class="line">Showing nodes accounting <span class="keyword">for</span> <span class="number">151.15</span>s, <span class="number">99.36</span>% of <span class="number">152.13</span>s total   </span><br><span class="line">Dropped <span class="number">60</span> nodes (cum &lt;= <span class="number">0.76</span>s)</span><br><span class="line">      flat  flat%   sum%        cum   cum%</span><br><span class="line">    <span class="number">70.38</span>s <span class="number">46.26</span>% <span class="number">46.26</span>%    <span class="number">122.68</span>s <span class="number">80.64</span>%  runtime.selectnbrecv</span><br><span class="line">    <span class="number">52.25</span>s <span class="number">34.35</span>% <span class="number">80.61</span>%     <span class="number">52.27</span>s <span class="number">34.36</span>%  runtime.chanrecv    </span><br><span class="line">    <span class="number">28.52</span>s <span class="number">18.75</span>% <span class="number">99.36</span>%    <span class="number">151.27</span>s <span class="number">99.43</span>%  main.logicCode      </span><br><span class="line">(pprof)</span><br></pre></td></tr></table></figure>
+<p>其中：</p>
+<ul>
+<li>flat：当前函数占用 CPU 的耗时</li>
+<li>flat：: 当前函数占用 CPU 的耗时百分比</li>
+<li>sun%：函数占用 CPU 的耗时累计百分比</li>
+<li>cum：当前函数加上调用当前函数的函数占用 CPU 的总耗时</li>
+<li>cum%：当前函数加上调用当前函数的函数占用 CPU 的总耗时百分比</li>
+<li>最后一列：函数名称</li>
+</ul>
+<p>在大多数的情况下，我们可以通过分析这五列得出一个应用程序的运行情况，并对程序进行优化。我们还可以使用 <code>list 函数名</code>命令查看具体的函数分析，例如执行 <code>list logicCode</code> 查看我们编写的函数的详细分析。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">(pprof) list logicCode</span><br><span class="line">Total: <span class="number">2.54</span>mins</span><br><span class="line">ROUTINE ======================== main.logicCode in C:\Users\ASUS\<span class="keyword">go</span>\src\calc\day09\runtime_pprof\main.<span class="keyword">go</span></span><br><span class="line">    <span class="number">28.52</span>s   <span class="number">2.52</span>mins (flat, cum) <span class="number">99.43</span>% of Total</span><br><span class="line">         .          .     <span class="number">12</span>:<span class="comment">// 一段有问题的代码</span></span><br><span class="line">         .          .     <span class="number">13</span>:<span class="function"><span class="keyword">func</span> <span class="title">logicCode</span><span class="params">()</span></span> &#123;</span><br><span class="line">         .          .     <span class="number">14</span>:   <span class="keyword">var</span> c <span class="keyword">chan</span> <span class="keyword">int</span></span><br><span class="line">         .          .     <span class="number">15</span>:   <span class="keyword">for</span> &#123;</span><br><span class="line">         .          .     <span class="number">16</span>:           <span class="keyword">select</span> &#123;</span><br><span class="line">    <span class="number">28.52</span>s   <span class="number">2.52</span>mins     <span class="number">17</span>:           <span class="keyword">case</span> v := &lt;-c:</span><br><span class="line">         .          .     <span class="number">18</span>:                   fmt.Printf(<span class="string">&quot;recv from chan, value:%v\n&quot;</span>, v)</span><br><span class="line">         .          .     <span class="number">19</span>:           <span class="keyword">default</span>:</span><br><span class="line">         .          .     <span class="number">20</span>:</span><br><span class="line">         .          .     <span class="number">21</span>:           &#125;</span><br><span class="line">         .          .     <span class="number">22</span>:   &#125;</span><br></pre></td></tr></table></figure>
+<p>通过分析发现大部分 CPU 资源被 17 行占用，我们分析出 select 语句中的 default 没有内容会导致上面的 case v := &lt;-c: 一直执行。我们在 default 分支添加一行 time.Sleep (time.Second) 即可。</p>
+<h4 id="<font-color=red>图形化</font>"><font color=red>图形化</font></h4>
+<p>或者可以直接输入 web，通过 svg 图的方式查看程序中详细的 CPU 占用情况。想要查看图形化的界面首先需要安装 <a target="_blank" rel="noopener" href="https://graphviz.gitlab.io/">graphviz</a> 图形化工具。Mac:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install graphviz</span><br></pre></td></tr></table></figure>
+<p>Windows：下载 graphviz，将 graphviz 安装目录下的 bin 文件夹添加到 Path 环境变量中。在终端输入 dot -version 查看是否安装成功。使用 web 命令用浏览器查看：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\ASUS\go\src\calc\day09\runtime_pprof&gt;go tool pprof cpu.pprof</span><br><span class="line">Type: cpu</span><br><span class="line">Time: Mar 20, 2021 at 9:47pm (CST)</span><br><span class="line">Duration: 20.29s, Total samples = 2.54mins (749.71%)</span><br><span class="line">Entering interactive mode (type &quot;help&quot; for commands, &quot;o&quot; for options)</span><br><span class="line">(pprof) web</span><br></pre></td></tr></table></figure>
+<p><img src="images/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE-2021-03-21-112348-1024x711.png" alt=""></p>
+<p>关于图形的说明： 每个框代表一个函数，理论上框的越大表示占用的 CPU 资源越多。 方框之间的线条代表函数之间的调用关系。 线条上的数字表示函数调用的次数。 方框中的第一行数字表示当前函数占用 CPU 的百分比，第二行数字表示当前函数累计占用 CPU 的百分比。除了分析 CPU 性能数据，pprof 也支持分析内存性能数据。比如，使用下面的命令分析 http 服务的 heap 性能数据，查看当前程序的内存占用以及热点内存对象使用的情况。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 查看内存占用数据</span></span><br><span class="line">go tool pprof -inuse_space http://127.0.0.1:8080/debug/pprof/heap</span><br><span class="line">go tool pprof -inuse_objects http://127.0.0.1:8080/debug/pprof/heap</span><br><span class="line"><span class="meta">#</span><span class="bash"> 查看临时内存分配数据</span></span><br><span class="line">go tool pprof -alloc_space http://127.0.0.1:8080/debug/pprof/heap</span><br><span class="line">go tool pprof -alloc_objects http://127.0.0.1:8080/debug/pprof/heap</span><br></pre></td></tr></table></figure>
+<h3 id="<center>go-torch与火焰图</center>"><center>go-torch与火焰图</center></h3>
+<p>待续…</p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+    
+      <a class="nav-right" href="/2021/12/09/golang%E5%9F%BA%E7%A1%80%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E5%B8%B8%E9%87%8F/">
+        
+          golang基础之变量与常量
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Egolang%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%3C/center%3E"><span class="toc-nav-text">Golang性能调优</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E9%87%87%E9%9B%86%E6%80%A7%E8%83%BD%E6%95%B0%E6%8D%AE%3C/center%3E"><span class="toc-nav-text">采集性能数据</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%B7%A5%E5%85%B7%E5%9E%8B%E5%BA%94%E7%94%A8%3C/center%3E"><span class="toc-nav-text">工具型应用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Ecpu%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%3C/font%3E"><span class="toc-nav-text">CPU性能分析</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%86%85%E5%AD%98%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%3C/font%3E"><span class="toc-nav-text">内存性能优化</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E6%9C%8D%E5%8A%A1%E5%9E%8B%E5%BA%94%E7%94%A8%3C/center%3E"><span class="toc-nav-text">服务型应用</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Ego-tool%20pprof%E5%91%BD%E4%BB%A4%3C/center%3E"><span class="toc-nav-text">go tool pprof命令</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%85%B7%E4%BD%93%E7%A4%BA%E4%BE%8B%3C/center%3E"><span class="toc-nav-text">具体示例</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%BA%A4%E4%BA%92%E7%95%8C%E9%9D%A2%3C/font%3E"><span class="toc-nav-text">命令行交互界面</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%9B%BE%E5%BD%A2%E5%8C%96%3C/font%3E"><span class="toc-nav-text">图形化</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Ego-torch%E4%B8%8E%E7%81%AB%E7%84%B0%E5%9B%BE%3C/center%3E"><span class="toc-nav-text">go-torch与火焰图</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2021/01/22/golang pprof性能调优/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>

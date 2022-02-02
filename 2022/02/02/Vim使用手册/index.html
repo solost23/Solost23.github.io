@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Vim使用手册 | Solost23&#39;s blog
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Solost23's blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Vim使用手册</h2>
+  <p class="post-date">2022-02-02</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h3 id="Vim介绍"><a href="#Vim介绍" class="headerlink" title="Vim介绍"></a><center>Vim介绍</center></h3><ul>
+<li>Vim 可以执行输出、删除、查找、替换、块操作等众多文本操作，而且用户可以根据自己的需要进行定制，这是其它编辑程序没有的。</li>
+<li>Vim 不是一个排版程序，不像 Word 或 Wps 一样可以对字体、格式、段落和其他属性进行编排。</li>
+<li>Vim 是全屏文本编辑器，它没有菜单，只有命令。</li>
+</ul>
+<h3 id="Vim四大模式及介绍"><a href="#Vim四大模式及介绍" class="headerlink" title="Vim四大模式及介绍"></a><center>Vim四大模式及介绍</center></h3><h4 id="命令模式"><a href="#命令模式" class="headerlink" title="命令模式"></a><font color=red>命令模式</font></h4><p>此模式下用户可以输入命令来进行文件存盘、移动光标、删除字符、撤销命令和重复操作命令等操作，还可以设置 Vim 的编辑环境。</p>
+<p>光标移动：</p>
+<ul>
+<li>光标移动：h：左 j：下 k: 上 l：右</li>
+<li>光标移动至行首：home</li>
+<li>光标移动至行尾：end</li>
+<li>光标移动至开头：gg</li>
+<li>光标移动至末尾：G</li>
+<li>光标向后移动一个单词：w</li>
+</ul>
+<p>保存退出：</p>
+<ul>
+<li>存盘保存退出：ZZ（大写）</li>
+</ul>
+<p>黏贴复制：</p>
+<ul>
+<li>复制一行：yy</li>
+<li>复制 n 行：nyy</li>
+<li>黏贴：p 黏贴到行前，P 黏贴到行后</li>
+</ul>
+<p>删除：</p>
+<ul>
+<li>向后删除：x</li>
+<li>向前删除：X</li>
+<li>删除一行：dd</li>
+<li>删除 n 行：ndd</li>
+<li>删除一个单词（光标放置单词首）：dw</li>
+</ul>
+<p>撤销：</p>
+<ul>
+<li>回退一步：u</li>
+</ul>
+<p>查找：</p>
+<ul>
+<li>/ 查找字符</li>
+</ul>
+<h4 id="插入模式"><a href="#插入模式" class="headerlink" title="插入模式"></a><font color=red>插入模式</font></h4><p>删除字符、插入字符。</p>
+<p>从命令行模式进入插入模式：</p>
+<ul>
+<li>从光标所在位置后面输入内容：a</li>
+<li>从光标所在行行尾输入内容：A</li>
+<li>从光标所在位置前面输入内容：i</li>
+<li>从光标所在行行首输入内容：I</li>
+<li>从光标所在行下新增一行输入内容：o</li>
+<li>从光标所在行上新增一行输入内容：O</li>
+</ul>
+<h4 id="末行模式"><a href="#末行模式" class="headerlink" title="末行模式"></a><font color=red>末行模式</font></h4><p>进行文件的保存，退出 Vim，进行查找和替换等操作。</p>
+<p>退出 Vim：</p>
+<ul>
+<li>退出（有提示）：q</li>
+<li>强制退出不保存：!</li>
+<li>保存不退出：w</li>
+<li>保存退出：wq</li>
+</ul>
+<p>在末行模式下进行替换：</p>
+<ul>
+<li>只替换光标所在行的第一个 old：s/old/new/</li>
+<li>替换本行所有 old：s/old/new/g</li>
+<li>替换每行第一个 old：% s/old/new</li>
+<li>替换文中所有的 old：% s/old/new/g</li>
+</ul>
+<h4 id="替换模式"><a href="#替换模式" class="headerlink" title="替换模式"></a><font color=red>替换模式</font></h4><p>替换字符</p>
+<h3 id="Vim中的多文件编辑"><a href="#Vim中的多文件编辑" class="headerlink" title="Vim中的多文件编辑"></a><center>Vim中的多文件编辑</center></h3><p>在末行模式下保存文件内容再进行多文件切换</p>
+<p>同时编辑多个文件时，同一时间只能显示一个文件内容，所以在 Vim 重要切换文件。</p>
+<ul>
+<li>切换下一个文件：n</li>
+<li>切换上一个文件：N</li>
+</ul>
+<p>其他命令：</p>
+<ul>
+<li>显示行号：set nu</li>
+<li>取消行号：set nonu</li>
+</ul>
+<h3 id="四大模式转换图"><a href="#四大模式转换图" class="headerlink" title="四大模式转换图"></a><center>四大模式转换图</center></h3><p><img src="images%5Cvim-2021-02-18-132406.png"></p>
+<p>注意:后三种模式必须由命令模式转换进入。</p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Linux" >
+    <span class="tag-code">Linux</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2022/02/02/Raft%E7%AE%97%E6%B3%95%E4%BB%8B%E7%BB%8D%E4%BB%A5%E5%8F%8Agolang%E5%AE%9E%E7%8E%B0/">
+        <span class="nav-arrow">← </span>
+        
+          Raft算法介绍以及golang实现
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2022/02/02/golang%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF/">
+        
+          golang学习之路
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Vim%E4%BB%8B%E7%BB%8D"><span class="toc-nav-text">Vim介绍</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Vim%E5%9B%9B%E5%A4%A7%E6%A8%A1%E5%BC%8F%E5%8F%8A%E4%BB%8B%E7%BB%8D"><span class="toc-nav-text">Vim四大模式及介绍</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F"><span class="toc-nav-text">命令模式</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%8F%92%E5%85%A5%E6%A8%A1%E5%BC%8F"><span class="toc-nav-text">插入模式</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%9C%AB%E8%A1%8C%E6%A8%A1%E5%BC%8F"><span class="toc-nav-text">末行模式</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%E6%9B%BF%E6%8D%A2%E6%A8%A1%E5%BC%8F"><span class="toc-nav-text">替换模式</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Vim%E4%B8%AD%E7%9A%84%E5%A4%9A%E6%96%87%E4%BB%B6%E7%BC%96%E8%BE%91"><span class="toc-nav-text">Vim中的多文件编辑</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%9B%9B%E5%A4%A7%E6%A8%A1%E5%BC%8F%E8%BD%AC%E6%8D%A2%E5%9B%BE"><span class="toc-nav-text">四大模式转换图</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2022/02/02/Vim使用手册/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      GORM入门指南 | Solost23&#39;s blog
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Solost23's blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>GORM入门指南</h2>
+  <p class="post-date">2021-12-22</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p>gorm 是一个使用 Go 语言编写的 ORM 框架。它文档齐全，对开发者友好，支持主流数据库。</p>
+<h3 id="<center>gorm介绍</center>"><center>gorm介绍</center></h3>
+<p><a target="_blank" rel="noopener" href="https://github.com/jinzhu/gorm">Github GORM</a></p>
+<p><a target="_blank" rel="noopener" href="https://gorm.io/zh_CN/">中文官方网站</a>内含十分齐全的中文文档，有了它你甚至不需要再继续向下阅读本文了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go get -u github.com/jinzhu/gorm</span><br></pre></td></tr></table></figure>
+<h3 id="<center>连接数据库</center>"><center>连接数据库</center></h3>
+<p>连接不同的数据库都需要导入对应数据的驱动程序，GORM 已经贴心的为我们包装了一些驱动程序，只需要按如下方式导入需要的数据库驱动即可：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> _ <span class="string">&quot;github.com/jinzhu/gorm/dialects/mysql&quot;</span></span><br><span class="line"><span class="comment">// import _ &quot;github.com/jinzhu/gorm/dialects/postgres&quot;</span></span><br><span class="line"><span class="comment">// import _ &quot;github.com/jinzhu/gorm/dialects/sqlite&quot;</span></span><br><span class="line"><span class="comment">// import _ &quot;github.com/jinzhu/gorm/dialects/mssql&quot;</span></span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>连接`mysql`</font>"><font color=red>连接<code>MySQL</code></font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> (</span><br><span class="line">  <span class="string">&quot;github.com/jinzhu/gorm&quot;</span></span><br><span class="line">  _ <span class="string">&quot;github.com/jinzhu/gorm/dialects/mysql&quot;</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  db, err := gorm.Open(<span class="string">&quot;mysql&quot;</span>, <span class="string">&quot;user:password@(localhost)/dbname?charset=utf8mb4&amp;parseTime=True&amp;loc=Local&quot;</span>)</span><br><span class="line">  <span class="keyword">defer</span> db.Close()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>连接`postgresql`</font>"><font color=red>连接<code>PostgreSQL</code></font></h4>
+<p>基本代码上，注意引用对应 postgres 驱动并正确指定 gorm.Open () 参数。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> (</span><br><span class="line">  <span class="string">&quot;github.com/jinzhu/gorm&quot;</span></span><br><span class="line">  _ <span class="string">&quot;github.com/jinzhu/gorm/dialects/postgres&quot;</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  db, err := gorm.Open(<span class="string">&quot;postgres&quot;</span>, <span class="string">&quot;host=myhost port=myport user=gorm dbname=gorm password=mypassword&quot;</span>)</span><br><span class="line">  <span class="keyword">defer</span> db.Close()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>连接`sqlite3`</font>"><font color=red>连接<code>Sqlite3</code></font></h4>
+<p>基本代码同上，注意引入对应 sqlite 驱动并正确指定 gorm.Open () 参数。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> (</span><br><span class="line">  <span class="string">&quot;github.com/jinzhu/gorm&quot;</span></span><br><span class="line">  _ <span class="string">&quot;github.com/jinzhu/gorm/dialects/sqlite&quot;</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  db, err := gorm.Open(<span class="string">&quot;sqlite3&quot;</span>, <span class="string">&quot;/tmp/gorm.db&quot;</span>)</span><br><span class="line">  <span class="keyword">defer</span> db.Close()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>连接sql server</font>"><font color=red>连接SQL Server</font></h4>
+<p>基本代码同上，注意引入对应 mssql 驱动并正确指定 gorm.Open () 参数。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> (</span><br><span class="line">  <span class="string">&quot;github.com/jinzhu/gorm&quot;</span></span><br><span class="line">  _ <span class="string">&quot;github.com/jinzhu/gorm/dialects/mssql&quot;</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  db, err := gorm.Open(<span class="string">&quot;mssql&quot;</span>, <span class="string">&quot;sqlserver://username:password@localhost:1433?database=dbname&quot;</span>)</span><br><span class="line">  <span class="keyword">defer</span> db.Close()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>gorm基本示例</center>"><center>GORM基本示例</center></h3>
+<h4 id="<font-color=red>`docker`快速创建`mysql`实例</font>"><font color=red><code>Docker</code>快速创建<code>MySQL</code>实例</FONT></h4>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --name mysql8019 -p 13306:3306 -e MYSQL_ROOT_PASSWORD=root1234 -d mysql:8.0.19</span><br></pre></td></tr></table></figure>
+<p>在另外启动一个 MySQL Client 连接上面的 MySQL 环境，密码为上一步指定的密码 root1234：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --network host --rm mysql mysql -h127.0.0.1 -P13306 --default-character-set=utf8mb4 -uroot -p</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>创建数据库</font>"><font color=red>创建数据库</font></h4>
+<p>在使用 GORM 前手动创建数据库 db1：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CREATE DATABASE db1;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>gorm操作mysql</font>"><font color=red>GORM操作MySQL</font></h4>
+<p>使用 GORM 连接上面的 db1 进行创建、查询、更新、删除操作：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/jinzhu/gorm&quot;</span></span><br><span class="line">	_ <span class="string">&quot;github.com/jinzhu/gorm/dialects/mysql&quot;</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="comment">// UserInfo 用户信息</span></span><br><span class="line"><span class="keyword">type</span> UserInfo <span class="keyword">struct</span> &#123;</span><br><span class="line">	ID <span class="keyword">uint</span></span><br><span class="line">	Name <span class="keyword">string</span></span><br><span class="line">	Gender <span class="keyword">string</span></span><br><span class="line">	Hobby <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	db, err := gorm.Open(<span class="string">&quot;mysql&quot;</span>, <span class="string">&quot;root:root1234@(127.0.0.1:13306)/db1?charset=utf8mb4&amp;parseTime=True&amp;loc=Local&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err!= <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> db.Close()</span><br><span class="line"> </span><br><span class="line">	<span class="comment">// 自动迁移（把结构体和数据表进行对应创建表，之后结构体字段修改则数据表字段随之修改）</span></span><br><span class="line">	db.AutoMigrate(&amp;UserInfo&#123;&#125;)</span><br><span class="line"> </span><br><span class="line">	u1 := UserInfo&#123;<span class="number">1</span>, <span class="string">&quot;ty&quot;</span>, <span class="string">&quot;male&quot;</span>, <span class="string">&quot;basketball&quot;</span>&#125;</span><br><span class="line">	u2 := UserInfo&#123;<span class="number">2</span>, <span class="string">&quot;mzj&quot;</span>, <span class="string">&quot;female&quot;</span>, <span class="string">&quot;football&quot;</span>&#125;</span><br><span class="line">	<span class="comment">// 创建记录</span></span><br><span class="line">	db.Create(&amp;u1)</span><br><span class="line">	db.Create(&amp;u2)</span><br><span class="line">	<span class="comment">// 查询</span></span><br><span class="line">	<span class="keyword">var</span> u = <span class="built_in">new</span>(UserInfo)</span><br><span class="line">	db.First(u)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%#v\n&quot;</span>, u)</span><br><span class="line"> </span><br><span class="line">	<span class="keyword">var</span> uu UserInfo</span><br><span class="line">	db.Find(&amp;uu, <span class="string">&quot;hobby=?&quot;</span>, <span class="string">&quot;football&quot;</span>)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%#v\n&quot;</span>, uu)</span><br><span class="line"> </span><br><span class="line">	<span class="comment">// 更新</span></span><br><span class="line">	db.Model(&amp;u).Update(<span class="string">&quot;hobby&quot;</span>, <span class="string">&quot;blackball&quot;</span>)</span><br><span class="line">	<span class="comment">// 删除</span></span><br><span class="line">	db.Delete(&amp;u)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>gorm-model定义</center>"><center>GORM Model定义</center></h3>
+<p>在使用 ORM 工具时，通常我们需要在代码中定义模型（Model）与数据库中的数据表进行映射，在 ORM 中模型（Model）通常是正常定义的结构体、基本的 go 类型或他们的指针。同时也支持 sql.Scanner 及 driver.Valuer 接口（interface）。</p>
+<h4 id="<font-color=red>gormmodel</font>"><font color=red>gorm.Model</font></h4>
+<p>为了方便模型定义，GORM 内置了一个 gorm.Model 结构体。gorm.Model 是一个包含了 ID，CreateAt、UpdateAt、DeleteAt 四个字段的 Golang 结构体。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// gorm.Model 定义</span></span><br><span class="line"><span class="keyword">type</span> Model <span class="keyword">struct</span> &#123;</span><br><span class="line">  ID        <span class="keyword">uint</span> <span class="string">`gorm:&quot;primary_key&quot;`</span></span><br><span class="line">  CreatedAt time.Time</span><br><span class="line">  UpdatedAt time.Time</span><br><span class="line">  DeletedAt *time.Time</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>你可以将它嵌入到你自己的模型中：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将 `ID`, `CreatedAt`, `UpdatedAt`, `DeletedAt`字段注入到`User`模型中</span></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">  gorm.Model</span><br><span class="line">  Name <span class="keyword">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当然你也可以完全自己定义模型：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不使用gorm.Model，自行定义模型</span></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">  ID   <span class="keyword">int</span></span><br><span class="line">  Name <span class="keyword">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>模型定义示例</font>"><font color=red>模型定义示例</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">  gorm.Model</span><br><span class="line">  Name         <span class="keyword">string</span></span><br><span class="line">  Age          sql.NullInt64</span><br><span class="line">  Birthday     *time.Time</span><br><span class="line">  Email        <span class="keyword">string</span>  <span class="string">`gorm:&quot;type:varchar(100);unique_index&quot;`</span></span><br><span class="line">  Role         <span class="keyword">string</span>  <span class="string">`gorm:&quot;size:255&quot;`</span> <span class="comment">// 设置字段大小为255</span></span><br><span class="line">  MemberNumber *<span class="keyword">string</span> <span class="string">`gorm:&quot;unique;not null&quot;`</span> <span class="comment">// 设置会员号（member number）唯一并且不为空</span></span><br><span class="line">  Num          <span class="keyword">int</span>     <span class="string">`gorm:&quot;AUTO_INCREMENT&quot;`</span> <span class="comment">// 设置 num 为自增类型，这个规则不会生效，因为一个表中只允许一个自增字段，一般都是主键。</span></span><br><span class="line">  Address      <span class="keyword">string</span>  <span class="string">`gorm:&quot;index:addr&quot;`</span> <span class="comment">// 给address字段创建名为addr的索引</span></span><br><span class="line">  IgnoreMe     <span class="keyword">int</span>     <span class="string">`gorm:&quot;-&quot;`</span> <span class="comment">// 忽略本字段</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>结构体标记`tags`</font>"><font color=red>结构体标记<code>tags</code></font></h4>
+<p>使用结构体声明模型时，标记（tags）是可选项（tags 会按照你指定的规则在数据库中生效）。gorm 支持以下标记：</p>
+<h5 id="<font-color=red>支持的结构体标记</font>"><font color=red>支持的结构体标记</font></h5>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">结构体标记（Tag）</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Column</td>
+<td style="text-align:center">指定列名</td>
+</tr>
+<tr>
+<td style="text-align:center">Type</td>
+<td style="text-align:center">指定列数据类型</td>
+</tr>
+<tr>
+<td style="text-align:center">Size</td>
+<td style="text-align:center">指定列大小，默认值为 255</td>
+</tr>
+<tr>
+<td style="text-align:center">PRIMARY_KEY</td>
+<td style="text-align:center">将列指定为主键</td>
+</tr>
+<tr>
+<td style="text-align:center">UNIQUE</td>
+<td style="text-align:center">将列指定为唯一</td>
+</tr>
+<tr>
+<td style="text-align:center">DEFAULT</td>
+<td style="text-align:center">指定列默认值</td>
+</tr>
+<tr>
+<td style="text-align:center">PRECISION</td>
+<td style="text-align:center">指定列精度</td>
+</tr>
+<tr>
+<td style="text-align:center">NOT NULL</td>
+<td style="text-align:center">将列指定为非 NULL</td>
+</tr>
+<tr>
+<td style="text-align:center">AUTO_INCREMENT</td>
+<td style="text-align:center">指定列是否为自增类型</td>
+</tr>
+<tr>
+<td style="text-align:center">INDEX</td>
+<td style="text-align:center">创建具有或不带名称的索引，如果多个索引同名则创建复合索引</td>
+</tr>
+<tr>
+<td style="text-align:center">UNIQUE_INDEX</td>
+<td style="text-align:center">和 INDEX 类似，只不过创建的是唯一索引</td>
+</tr>
+<tr>
+<td style="text-align:center">EMBEDDED</td>
+<td style="text-align:center">将结构设置为嵌入</td>
+</tr>
+<tr>
+<td style="text-align:center">EMBEDDED_PREFIX</td>
+<td style="text-align:center">设置嵌入结构的前缀</td>
+</tr>
+<tr>
+<td style="text-align:center">-</td>
+<td style="text-align:center">忽略此字段</td>
+</tr>
+</tbody>
+</table>
+<h5 id="<font-color=red>关联相关标记</font>"><font color=red>关联相关标记</font></h5>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"><strong>结构体标记（Tag）</strong></th>
+<th style="text-align:center"><strong>描述</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">MANY2MANY</td>
+<td style="text-align:center">指定连接表</td>
+</tr>
+<tr>
+<td style="text-align:center">FOREIGNKEY</td>
+<td style="text-align:center">设置外键</td>
+</tr>
+<tr>
+<td style="text-align:center">ASSOCIATION_FOREIGNKEY</td>
+<td style="text-align:center">设置关联外键</td>
+</tr>
+<tr>
+<td style="text-align:center">POLYMORPHIC</td>
+<td style="text-align:center">指定多态类型</td>
+</tr>
+<tr>
+<td style="text-align:center">POLYMORPHIC_VALUE</td>
+<td style="text-align:center">指定多态值</td>
+</tr>
+<tr>
+<td style="text-align:center">JOINTABLE_FOREIGNKEY</td>
+<td style="text-align:center">指定连接表的外键</td>
+</tr>
+<tr>
+<td style="text-align:center">ASSOCIATION_JOINTABLE_FOREIGNKEY</td>
+<td style="text-align:center">指定连接表的关联外键</td>
+</tr>
+<tr>
+<td style="text-align:center">SAVE_ASSOCIATIONS</td>
+<td style="text-align:center">是否自动完成 save 的相关操作</td>
+</tr>
+<tr>
+<td style="text-align:center">ASSOCIATION_AUTOUPDATE</td>
+<td style="text-align:center">是否自动完成 update 的相关操作</td>
+</tr>
+<tr>
+<td style="text-align:center">ASSOCIATION_AUTOCREATE</td>
+<td style="text-align:center">是否自动完成 create 的相关操作</td>
+</tr>
+<tr>
+<td style="text-align:center">ASSOCIATION_SAVE_REFERENCE</td>
+<td style="text-align:center">是否自动完成引用的 save 的相关操作</td>
+</tr>
+<tr>
+<td style="text-align:center">PRELOAD</td>
+<td style="text-align:center">是否自动完成预加载的相关操作</td>
+</tr>
+</tbody>
+</table>
+<h3 id="<center>主键、表名、列名的约定</center>"><center>主键、表名、列名的约定</center></h3>
+<h4 id="<font-color=red>主键(primary key)</font>"><font color=red>主键(Primary Key)</font></h4>
+<p>GORM 默认会使用名为 ID 的字段作为表的主键。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">  ID   <span class="keyword">string</span> <span class="comment">// 名为`ID`的字段会默认作为表的主键</span></span><br><span class="line">  Name <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="comment">// 使用`AnimalID`作为主键</span></span><br><span class="line"><span class="keyword">type</span> Animal <span class="keyword">struct</span> &#123;</span><br><span class="line">  AnimalID <span class="keyword">int64</span> <span class="string">`gorm:&quot;primary_key&quot;`</span></span><br><span class="line">  Name     <span class="keyword">string</span></span><br><span class="line">  Age      <span class="keyword">int64</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>表名(table name)</font>"><font color=red>表名(Table Name)</font></h4>
+<p>表名默认就是结构体名称的复数，例如：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;&#125; <span class="comment">// 默认表名是 `users`</span></span><br><span class="line"> </span><br><span class="line"><span class="comment">// 将 User 的表名设置为 `profiles`</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(User)</span> <span class="title">TableName</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="string">&quot;profiles&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u User)</span> <span class="title">TableName</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">  <span class="keyword">if</span> u.Role == <span class="string">&quot;admin&quot;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;admin_users&quot;</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;users&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="comment">// 禁用默认表名的复数形式，如果置为 true，则 `User` 的默认表名是 `user`</span></span><br><span class="line">db.SingularTable(<span class="literal">true</span>)</span><br></pre></td></tr></table></figure>
+<p>也可以通过 Table () 指定表名：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用User结构体创建名为`deleted_users`的表</span></span><br><span class="line">db.Table(<span class="string">&quot;deleted_users&quot;</span>).CreateTable(&amp;User&#123;&#125;)</span><br><span class="line"> </span><br><span class="line"><span class="keyword">var</span> deleted_users []User</span><br><span class="line">db.Table(<span class="string">&quot;deleted_users&quot;</span>).Find(&amp;deleted_users)</span><br><span class="line"><span class="comment">//// SELECT * FROM deleted_users;</span></span><br><span class="line"> </span><br><span class="line">db.Table(<span class="string">&quot;deleted_users&quot;</span>).Where(<span class="string">&quot;name = ?&quot;</span>, <span class="string">&quot;jinzhu&quot;</span>).Delete()</span><br><span class="line"><span class="comment">//// DELETE FROM deleted_users WHERE name = &#x27;jinzhu&#x27;;</span></span><br></pre></td></tr></table></figure>
+<p>GORM 还支持更改默认表名称规则：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gorm.DefaultTableNameHandler = <span class="function"><span class="keyword">func</span> <span class="params">(db *gorm.DB, defaultTableName <span class="keyword">string</span>)</span> <span class="title">string</span></span>  &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="string">&quot;prefix_&quot;</span> + defaultTableName;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>列名(column name)</font>"><font color=red>列名(Column Name)</font></h4>
+<p>列名由字段名称进行下划线分隔来生成：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">  ID        <span class="keyword">uint</span>      <span class="comment">// column name is `id`</span></span><br><span class="line">  Name      <span class="keyword">string</span>    <span class="comment">// column name is `name`</span></span><br><span class="line">  Birthday  time.Time <span class="comment">// column name is `birthday`</span></span><br><span class="line">  CreatedAt time.Time <span class="comment">// column name is `created_at`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以使用结构体 tag 指定列名：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Animal <span class="keyword">struct</span> &#123;</span><br><span class="line">  AnimalId    <span class="keyword">int64</span>     <span class="string">`gorm:&quot;column:beast_id&quot;`</span>         <span class="comment">// set column name to `beast_id`</span></span><br><span class="line">  Birthday    time.Time <span class="string">`gorm:&quot;column:day_of_the_beast&quot;`</span> <span class="comment">// set column name to `day_of_the_beast`</span></span><br><span class="line">  Age         <span class="keyword">int64</span>     <span class="string">`gorm:&quot;column:age_of_the_beast&quot;`</span> <span class="comment">// set column name to `age_of_the_beast`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>时间戳跟踪</font>"><font color=red>时间戳跟踪</font></h4>
+<h5 id="<font-color=red>createdat</font>"><font color=red>CreatedAt</font></h5>
+<p>如果模型有 CreatedAt 字段，该字段的值将会是初次创建记录的时间。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">db.Create(&amp;user) <span class="comment">// `CreatedAt`将会是当前时间</span></span><br><span class="line"> </span><br><span class="line"><span class="comment">// 可以使用`Update`方法来改变`CreateAt`的值</span></span><br><span class="line">db.Model(&amp;user).Update(<span class="string">&quot;CreatedAt&quot;</span>, time.Now())</span><br></pre></td></tr></table></figure>
+<h5 id="<font-color=red>updatedat</font>"><font color=red>UpdatedAt</font></h5>
+<p>如果模型有 UpdatedAt 字段，该字段的值将会是每次更新记录的时间。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">db.Save(&amp;user) <span class="comment">// `UpdatedAt`将会是当前时间</span></span><br><span class="line"> </span><br><span class="line">db.Model(&amp;user).Update(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;jinzhu&quot;</span>) <span class="comment">// `UpdatedAt`将会是当前时间</span></span><br></pre></td></tr></table></figure>
+<h5 id="<font-color=red>deletedat</font>"><font color=red>DeletedAt</font></h5>
+<p>如果模型有 DeletedAt 字段，调用 Delete 删除该记录时，将会设置 DeletedAt 字段为当前时间，而不是直接将记录从数据库中删除。</p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/12/22/gRPC%E5%88%9D%E8%AF%86/">
+        <span class="nav-arrow">← </span>
+        
+          gRPC初识
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/12/22/GORM%20CRUD%E6%8C%87%E5%8D%97/">
+        
+          GORM CRUD指南
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Egorm%E4%BB%8B%E7%BB%8D%3C/center%3E"><span class="toc-nav-text">gorm介绍</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E8%BF%9E%E6%8E%A5%E6%95%B0%E6%8D%AE%E5%BA%93%3C/center%3E"><span class="toc-nav-text">连接数据库</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E8%BF%9E%E6%8E%A5%60mysql%60%3C/font%3E"><span class="toc-nav-text">连接MySQL</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E8%BF%9E%E6%8E%A5%60postgresql%60%3C/font%3E"><span class="toc-nav-text">连接PostgreSQL</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E8%BF%9E%E6%8E%A5%60sqlite3%60%3C/font%3E"><span class="toc-nav-text">连接Sqlite3</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E8%BF%9E%E6%8E%A5sql%20server%3C/font%3E"><span class="toc-nav-text">连接SQL Server</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Egorm%E5%9F%BA%E6%9C%AC%E7%A4%BA%E4%BE%8B%3C/center%3E"><span class="toc-nav-text">GORM基本示例</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%60docker%60%E5%BF%AB%E9%80%9F%E5%88%9B%E5%BB%BA%60mysql%60%E5%AE%9E%E4%BE%8B%3C/font%3E"><span class="toc-nav-text">Docker快速创建MySQL实例</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%88%9B%E5%BB%BA%E6%95%B0%E6%8D%AE%E5%BA%93%3C/font%3E"><span class="toc-nav-text">创建数据库</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Egorm%E6%93%8D%E4%BD%9Cmysql%3C/font%3E"><span class="toc-nav-text">GORM操作MySQL</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Egorm-model%E5%AE%9A%E4%B9%89%3C/center%3E"><span class="toc-nav-text">GORM Model定义</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Egormmodel%3C/font%3E"><span class="toc-nav-text">gorm.Model</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E6%A8%A1%E5%9E%8B%E5%AE%9A%E4%B9%89%E7%A4%BA%E4%BE%8B%3C/font%3E"><span class="toc-nav-text">模型定义示例</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E7%BB%93%E6%9E%84%E4%BD%93%E6%A0%87%E8%AE%B0%60tags%60%3C/font%3E"><span class="toc-nav-text">结构体标记tags</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E6%94%AF%E6%8C%81%E7%9A%84%E7%BB%93%E6%9E%84%E4%BD%93%E6%A0%87%E8%AE%B0%3C/font%3E"><span class="toc-nav-text">支持的结构体标记</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%85%B3%E8%81%94%E7%9B%B8%E5%85%B3%E6%A0%87%E8%AE%B0%3C/font%3E"><span class="toc-nav-text">关联相关标记</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E4%B8%BB%E9%94%AE%E3%80%81%E8%A1%A8%E5%90%8D%E3%80%81%E5%88%97%E5%90%8D%E7%9A%84%E7%BA%A6%E5%AE%9A%3C/center%3E"><span class="toc-nav-text">主键、表名、列名的约定</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E4%B8%BB%E9%94%AE(primary%20key)%3C/font%3E"><span class="toc-nav-text">主键(Primary Key)</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E8%A1%A8%E5%90%8D(table%20name)%3C/font%3E"><span class="toc-nav-text">表名(Table Name)</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%88%97%E5%90%8D(column%20name)%3C/font%3E"><span class="toc-nav-text">列名(Column Name)</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E6%97%B6%E9%97%B4%E6%88%B3%E8%B7%9F%E8%B8%AA%3C/font%3E"><span class="toc-nav-text">时间戳跟踪</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3Ecreatedat%3C/font%3E"><span class="toc-nav-text">CreatedAt</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eupdatedat%3C/font%3E"><span class="toc-nav-text">UpdatedAt</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3Edeletedat%3C/font%3E"><span class="toc-nav-text">DeletedAt</span></a></li></ol></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2021/12/22/GORM入门指南/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>

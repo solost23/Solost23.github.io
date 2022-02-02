@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      golang标准库之log | Solost23&#39;s blog
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Solost23's blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>golang标准库之log</h2>
+  <p class="post-date">2021-12-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p>无论是软件开发的调试阶段还是软件上线后的运行阶段，日志一直都是非常重要的一个环节，我们也应该养成在程序中记录日志的好习惯。</p>
+<h3 id="<center>log</center>"><center>log</center></h3>
+<p><code>golang</code>内置<code>log</code>包实现了简单的日志服务。本文介绍了标准库<code>log</code>的基本使用。</p>
+<h3 id="<center>使用logger</center>"><center>使用Logger</center></h3>
+<p><code>log</code>包定义了<code>Logger</code>类型，该类型提供了一些格式化输出的方法。本包中提供了一个预定义的“标准”logger，可以通过调用函数<code>Print</code>系列(<code>Print|Printf|Println</code>)、Fatal系列(<code>Fatal|Fatalf|Fatalln</code>)、和panic系列(<code>Panic|Panicf|panicln</code>)来使用，比自行创建一个<code>logger</code>对象更容易使用。<font color=red>默认</font>他们会将日志信息打印到终端界面。</p>
+<p>Eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;log&quot;</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	log.Println(<span class="string">&quot;这是一条很普通的日志。&quot;</span>)</span><br><span class="line">	v := <span class="string">&quot;很普通的&quot;</span></span><br><span class="line">	log.Printf(<span class="string">&quot;这是一条%s日志。\n&quot;</span>, v)</span><br><span class="line">	log.Fatalln(<span class="string">&quot;这是一条会触发fatal的日志。&quot;</span>)</span><br><span class="line">	log.Panicln(<span class="string">&quot;这是一条会触发panic的日志。&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Result:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">2017</span>/<span class="number">06</span>/<span class="number">19</span> <span class="number">14</span>:<span class="number">04</span>:<span class="number">17</span> 这是一条很普通的日志。</span><br><span class="line"><span class="number">2017</span>/<span class="number">06</span>/<span class="number">19</span> <span class="number">14</span>:<span class="number">04</span>:<span class="number">17</span> 这是一条很普通的日志。</span><br><span class="line"><span class="number">2017</span>/<span class="number">06</span>/<span class="number">19</span> <span class="number">14</span>:<span class="number">04</span>:<span class="number">17</span> 这是一条会触发fatal的日志。</span><br></pre></td></tr></table></figure>
+<p><code>logger</code>会打印每条日志信息的日期、时间、默认输出到系统的标准错误。<code>Fatal</code>系列函数会在写入日志后调用<code>os.Exit(1)</code>。<code>panic</code>系列函数会在写入日志信息后<code>panic</code>。</p>
+<h3 id="<center>配置logger</center>"><center>配置logger</center></h3>
+<h4 id="<font-color=red>标准logger配置</font>"><font color=red>标准logger配置</font></h4>
+<p>默认情况下的<code>logger</code>只会提供日志的时间信息，但是很多情况下我们希望得到更多信息，比如记录该日志的文件名和行号等。<code>log</code>标准库中为我们提供了定制这些设置的方法。<code>log</code>标准库中的<code>Flags</code>函数会返回标准<code>logger</code>的输出配置，而<code>SetFlags</code>函数常用来设置标准<code>logger</code>的输出配置:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Flags</span><span class="params">()</span> <span class="title">int</span></span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">SetFlags</span><span class="params">(flag <span class="keyword">int</span>)</span></span></span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>flag选项</font>"><font color=red>flag选项</font></h4>
+<p><code>log</code>标准库提供了如下的<code>flag</code>选项，他们是一系列定义好的常量:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> (</span><br><span class="line">    <span class="comment">// 控制输出日志信息的细节，不能控制输出的顺序和格式。</span></span><br><span class="line">    <span class="comment">// 输出的日志在每一项后会有一个冒号分隔：例如2009/01/23 01:23:23.123123 /a/b/c/d.go:23: message</span></span><br><span class="line">    Ldate         = <span class="number">1</span> &lt;&lt; <span class="literal">iota</span>     <span class="comment">// 日期：2009/01/23</span></span><br><span class="line">    Ltime                         <span class="comment">// 时间：01:23:23</span></span><br><span class="line">    Lmicroseconds                 <span class="comment">// 微秒级别的时间：01:23:23.123123（用于增强Ltime位）</span></span><br><span class="line">    Llongfile                     <span class="comment">// 文件全路径名+行号： /a/b/c/d.go:23</span></span><br><span class="line">    Lshortfile                    <span class="comment">// 文件名+行号：d.go:23（会覆盖掉Llongfile）</span></span><br><span class="line">    LUTC                          <span class="comment">// 使用UTC时间</span></span><br><span class="line">    LstdFlags     = Ldate | Ltime <span class="comment">// 标准logger的初始值</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>下面我们在记录日志之前设置一下标准 logger 的输出选项如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	log.SetFlags(log.Llongfile | log.Lmicroseconds | log.Ldate)</span><br><span class="line">	log.Println(<span class="string">&quot;这是一条很普通的日志。&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译执行后得到的输出结果如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">2021</span>/<span class="number">03</span>/<span class="number">15</span> <span class="number">19</span>:<span class="number">51</span>:<span class="number">24.453037</span> C:/Users/ASUS/<span class="keyword">go</span>/src/calc/day06/<span class="number">04</span>log_demo/main.<span class="keyword">go</span>:<span class="number">23</span>: 这是一条很普通的日志。</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>配置日志前缀</font>"><font color=red>配置日志前缀</font></h4>
+<p>log 标准库中还提供了关于日志信息前缀的两个方法：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Prefix</span><span class="params">()</span> <span class="title">string</span></span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">SetPrefix</span><span class="params">(prefix <span class="keyword">string</span>)</span></span></span><br></pre></td></tr></table></figure>
+<p>其中 Prefix 函数用来查看标准 logger 的输出前缀，SetPrefix 函数用来设置输出前缀：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	log.SetFlags(log.Llongfile | log.Lmicroseconds | log.Ldate)</span><br><span class="line">	log.Println(<span class="string">&quot;这是一条很普通的日志。&quot;</span>)</span><br><span class="line">	log.SetPrefix(<span class="string">&quot;[ty]&quot;</span>)</span><br><span class="line">	log.Println(<span class="string">&quot;这是一条很普通的日志。&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的代码输出如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[ty]<span class="number">2021</span>/<span class="number">03</span>/<span class="number">15</span> <span class="number">19</span>:<span class="number">54</span>:<span class="number">56.203682</span> C:/Users/ASUS/<span class="keyword">go</span>/src/calc/day06/<span class="number">04</span>log_demo/main.<span class="keyword">go</span>:<span class="number">26</span>: 这是一条很普通的日志。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>这样我们就能在代码中为我们的日志信息添加指定的前缀，方便之后对日志信息进行检索和处理。</p>
+<h4 id="<font-color=red>配置日志输出位置</font>"><font color=red>配置日志输出位置</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">SetOutput</span><span class="params">(w io.Writer)</span></span></span><br></pre></td></tr></table></figure>
+<p>SetOutput 函数用来设置标准 logger 的输出目的地，默认是标准错误输出。</p>
+<p>例如，下面的代码会把日志输出到同目录下的 xx.log 文件中：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	logFile, err := os.OpenFile(<span class="string">&quot;./xx.log&quot;</span>, os.O_CREATE|os.O_WRONLY|os.O_APPEND, <span class="number">0644</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;open log file failed, err:&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	log.SetOutput(logFile)</span><br><span class="line">	log.SetFlags(log.Llongfile | log.Lmicroseconds | log.Ldate)</span><br><span class="line">	log.Println(<span class="string">&quot;这是一条很普通的日志。&quot;</span>)</span><br><span class="line">	log.SetPrefix(<span class="string">&quot;[ty]&quot;</span>)</span><br><span class="line">	log.Println(<span class="string">&quot;这是一条很普通的日志。&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果你要使用标准的 logger，我们通常会把上面的配置操作写到 init 函数中：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	logFile, err := os.OpenFile(<span class="string">&quot;./xx.log&quot;</span>, os.O_CREATE|os.O_WRONLY|os.O_APPEND, <span class="number">0644</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;open log file failed, err:&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	log.SetOutput(logFile)</span><br><span class="line">	log.SetFlags(log.Llongfile | log.Lmicroseconds | log.Ldate)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>创建logger</center>"><center>创建logger</center></h3>
+<p>log 标准库中还提供了一个创建新 logger 对象的构造函数 - New，支持我们创建自己的 logger 示例。New 函数的函数签名如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">New</span><span class="params">(out io.Writer, prefix <span class="keyword">string</span>, flag <span class="keyword">int</span>)</span> *<span class="title">Logger</span></span></span><br></pre></td></tr></table></figure>
+<p>New 创建一个 Logger 对象。其中，参数 out 设置日志信息写入的目的地。参数 prefix 会添加到生成的每一条日志前面。参数 flag 定义日志的属性（时间、文件等等）。eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	logger := log.New(os.Stdout, <span class="string">&quot;&lt;New&gt;&quot;</span>, log.Lshortfile|log.Ldate|log.Ltime)</span><br><span class="line">	logger.Println(<span class="string">&quot;这是自定义的logger记录的日志。&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将上面的代码编译执行之后，得到结果如下：</p>
+<p>2021/03/15 20:03:27 main.go:12: 这是自定义的 logger 记录的日志。</p>
+<h3 id="<center>总结</center>"><center>总结</center></h3>
+<p>Go 内置的 log 库功能有限，例如无法满足记录不同级别日志的情况，我们在实际的项目中根据自己的需要选择使用第三方的日志库，如 <a target="_blank" rel="noopener" href="https://github.com/sirupsen/logrus">logrus</a>、<a target="_blank" rel="noopener" href="https://github.com/uber-go/zap">zap</a> 等。</p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/12/20/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Btime/">
+        <span class="nav-arrow">← </span>
+        
+          golang标准库之time
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/12/20/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bfmt%E4%B8%8E%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6/">
+        
+          golang标准库之fmt与格式化字符
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Elog%3C/center%3E"><span class="toc-nav-text">log</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E4%BD%BF%E7%94%A8logger%3C/center%3E"><span class="toc-nav-text">使用Logger</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E9%85%8D%E7%BD%AElogger%3C/center%3E"><span class="toc-nav-text">配置logger</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E6%A0%87%E5%87%86logger%E9%85%8D%E7%BD%AE%3C/font%3E"><span class="toc-nav-text">标准logger配置</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eflag%E9%80%89%E9%A1%B9%3C/font%3E"><span class="toc-nav-text">flag选项</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E9%85%8D%E7%BD%AE%E6%97%A5%E5%BF%97%E5%89%8D%E7%BC%80%3C/font%3E"><span class="toc-nav-text">配置日志前缀</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E9%85%8D%E7%BD%AE%E6%97%A5%E5%BF%97%E8%BE%93%E5%87%BA%E4%BD%8D%E7%BD%AE%3C/font%3E"><span class="toc-nav-text">配置日志输出位置</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%88%9B%E5%BB%BAlogger%3C/center%3E"><span class="toc-nav-text">创建logger</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E6%80%BB%E7%BB%93%3C/center%3E"><span class="toc-nav-text">总结</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2021/12/20/golang标准库之log/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>

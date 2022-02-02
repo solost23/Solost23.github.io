@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      使用Air实现golang程序实时热重载 | Solost23&#39;s blog
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Solost23's blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>使用Air实现golang程序实时热重载</h2>
+  <p class="post-date">2021-12-22</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p>介绍一个神器 ——Air，Air 能够实时监听项目的代码文件，在代码发生变更之后自动重新编译并执行，大大提高 gin 框架项目的开发效率。</p>
+<h3 id="<center>为什么需要实时加载</center>"><center>为什么需要实时加载</center></h3>
+<p>使用<code>Python</code>编写<code>Web</code>项目的时候，常见的<code>Flask</code>和<code>Django</code>都支持实时加载，修改项目代码之后，程序能够自动重新加载并执行(live_reload), 这在日常开发阶段是十分方便的。在使用<code>Golang</code>的<code>Gin</code>框架做本地开发调试的时候经常需要在变更代码后频繁地按下<code>Ctrl + C</code>停止程序并重新编译，这样不是很方便。</p>
+<h3 id="<center>air介绍</center>"><center>Air介绍</center></h3>
+<p>Air支持以下特性:</p>
+<ul>
+<li>彩色日志输出</li>
+<li>自定义构建成二进制命令</li>
+<li>支持忽略子目录</li>
+<li>启动后支持监听新目录</li>
+<li>更好的构建过程</li>
+</ul>
+<h3 id="<center>air安装</center>"><center>Air安装</center></h3>
+<h4 id="<font-color=red>golang</font>"><font color=red>Golang</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> get -u github.com/cosmtrek/air</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>macos</font>"><font color=red>MacOS</font></h4>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -fLo air https://git.io/darwin_air</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>linux</font>"><font color=red>Linux</font></h4>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -fLo air https://git.io/linux_air</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>windows</font>"><font color=red>Windows</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -fLo air.exe https:<span class="comment">//git.io/windows_air</span></span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>docker</font>"><font color=red>Docker</font></h4>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --rm \</span><br><span class="line">    -w &quot;&lt;PROJECT&gt;&quot; \</span><br><span class="line">    -e &quot;air_wd=&lt;PROJECT&gt;&quot; \</span><br><span class="line">    -v $(pwd):&lt;PROJECT&gt; \</span><br><span class="line">    -p &lt;PORT&gt;:&lt;APP SERVER PORT&gt; \</span><br><span class="line">    cosmtrek/air</span><br><span class="line">    -c &lt;CONF&gt;</span><br></pre></td></tr></table></figure>
+<p>然后按照下面的方式在<code>Docker</code>中运行你的项目</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --rm \</span><br><span class="line">    -w &quot;/go/src/github.com/cosmtrek/hub&quot; \</span><br><span class="line">    -v $(pwd):/go/src/github.com/cosmtrek/hub \</span><br><span class="line">    -p 9090:9090 \</span><br><span class="line">    cosmtrek/air</span><br></pre></td></tr></table></figure>
+<h3 id="<center>air使用</center>"><center>Air使用</center></h3>
+<p>为了敲命令时更简单方便，你应该把 alias air=‘~/.air’ 加到你的.bashrc 或.zshrc 中，Windows 不需要建立软链就可以在任何目录下执行。首先进入你的项目目录：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd /path/to/your_project</span><br></pre></td></tr></table></figure>
+<p>最简单的用法就是直接执行下面的命令:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 首先在当前目录下查找 `.air.conf`配置文件，如果找不到就使用默认的,windows下找不到文件不会运行程序，直接执行air就可以。</span></span><br><span class="line">air -c .air.conf</span><br></pre></td></tr></table></figure>
+<p>推荐的使用方法是:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 1. 在当前目录创建一个新的配置文件.air.conf</span></span><br><span class="line">touch .air.conf  // windows使用鼠标创建</span><br><span class="line"><span class="meta"> </span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 2. 复制 `air_conf.example` 中的内容到这个文件，然后根据你的需要去修改它</span></span><br><span class="line"><span class="meta"> </span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 3. 使用你的配置运行 air, 如果文件名是 `.air.conf`，只需要执行 `air`。</span></span><br><span class="line">air</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>air_exampleconf示例</font>"><font color=red>air_example.conf示例</font></h4>
+<p>完整的<code>air_example.conf</code>示例配置如下，可以根据自己的需要修改</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="params">#</span> [Air](https://github.com/cosmtrek/air) TOML 格式的配置文件</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 工作目录</span><br><span class="line"><span class="params">#</span> 使用 . 或绝对路径，请注意 `tmp<span class="built_in">_</span>dir` 目录必须在 `root` 目录下</span><br><span class="line">root = &quot;.&quot;</span><br><span class="line">tmp<span class="built_in">_</span>dir = &quot;tmp&quot;</span><br><span class="line"> </span><br><span class="line">[build]</span><br><span class="line"><span class="params">#</span> 只需要写你平常编译使用的shell命令。你也可以使用 `make`</span><br><span class="line"><span class="params">#</span> Windows平台示例: cmd = &quot;go build -o tmp<span class="keyword">\main</span>.exe .&quot;</span><br><span class="line">cmd = &quot;go build -o ./tmp/main .&quot;</span><br><span class="line"><span class="params">#</span> 由`cmd`命令得到的二进制文件名</span><br><span class="line"><span class="params">#</span> Windows平台示例：bin = &quot;tmp<span class="keyword">\main</span>.exe&quot;</span><br><span class="line">bin = &quot;tmp/main&quot;</span><br><span class="line"><span class="params">#</span> 自定义执行程序的命令，可以添加额外的编译标识例如添加 GIN<span class="built_in">_</span>MODE=release</span><br><span class="line"><span class="params">#</span> Windows平台示例：full<span class="built_in">_</span>bin = &quot;tmp<span class="keyword">\main</span>.exe&quot;</span><br><span class="line">full<span class="built_in">_</span>bin = &quot;APP<span class="built_in">_</span>ENV=dev APP<span class="built_in">_</span>USER=air ./tmp/main&quot;</span><br><span class="line"><span class="params">#</span> 监听以下文件扩展名的文件.</span><br><span class="line">include<span class="built_in">_</span>ext = [&quot;go&quot;, &quot;tpl&quot;, &quot;tmpl&quot;, &quot;html&quot;]</span><br><span class="line"><span class="params">#</span> 忽略这些文件扩展名或目录</span><br><span class="line">exclude<span class="built_in">_</span>dir = [&quot;assets&quot;, &quot;tmp&quot;, &quot;vendor&quot;, &quot;frontend/node<span class="built_in">_</span>modules&quot;]</span><br><span class="line"><span class="params">#</span> 监听以下指定目录的文件</span><br><span class="line">include<span class="built_in">_</span>dir = []</span><br><span class="line"><span class="params">#</span> 排除以下文件</span><br><span class="line">exclude<span class="built_in">_</span>file = []</span><br><span class="line"><span class="params">#</span> 如果文件更改过于频繁，则没有必要在每次更改时都触发构建。可以设置触发构建的延迟时间</span><br><span class="line">delay = 1000 <span class="params">#</span> ms</span><br><span class="line"><span class="params">#</span> 发生构建错误时，停止运行旧的二进制文件。</span><br><span class="line">stop<span class="built_in">_</span>on<span class="built_in">_</span>error = true</span><br><span class="line"><span class="params">#</span> air的日志文件名，该日志文件放置在你的`tmp<span class="built_in">_</span>dir`中</span><br><span class="line">log = &quot;air<span class="built_in">_</span>errors.log&quot;</span><br><span class="line"> </span><br><span class="line">[log]</span><br><span class="line"><span class="params">#</span> 显示日志时间</span><br><span class="line">time = true</span><br><span class="line"> </span><br><span class="line">[color]</span><br><span class="line"><span class="params">#</span> 自定义每个部分显示的颜色。如果找不到颜色，使用原始的应用程序日志。</span><br><span class="line">main = &quot;magenta&quot;</span><br><span class="line">watcher = &quot;cyan&quot;</span><br><span class="line">build = &quot;yellow&quot;</span><br><span class="line">runner = &quot;green&quot;</span><br><span class="line"> </span><br><span class="line">[misc]</span><br><span class="line"><span class="params">#</span> 退出时删除tmp目录</span><br><span class="line">clean<span class="built_in">_</span>on<span class="built_in">_</span>exit = true</span><br></pre></td></tr></table></figure>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/12/22/%E4%BD%BF%E7%94%A8docker%E9%83%A8%E7%BD%B2go%20web%E5%BA%94%E7%94%A8/">
+        <span class="nav-arrow">← </span>
+        
+          使用Docker部署Go Web程序
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/12/22/gRPC%E5%88%9D%E8%AF%86/">
+        
+          gRPC初识
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%AE%9E%E6%97%B6%E5%8A%A0%E8%BD%BD%3C/center%3E"><span class="toc-nav-text">为什么需要实时加载</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Eair%E4%BB%8B%E7%BB%8D%3C/center%3E"><span class="toc-nav-text">Air介绍</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Eair%E5%AE%89%E8%A3%85%3C/center%3E"><span class="toc-nav-text">Air安装</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Egolang%3C/font%3E"><span class="toc-nav-text">Golang</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Emacos%3C/font%3E"><span class="toc-nav-text">MacOS</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Elinux%3C/font%3E"><span class="toc-nav-text">Linux</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Ewindows%3C/font%3E"><span class="toc-nav-text">Windows</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Edocker%3C/font%3E"><span class="toc-nav-text">Docker</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Eair%E4%BD%BF%E7%94%A8%3C/center%3E"><span class="toc-nav-text">Air使用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eair_exampleconf%E7%A4%BA%E4%BE%8B%3C/font%3E"><span class="toc-nav-text">air_example.conf示例</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2021/12/22/使用Air实现golang程序实时热重载/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>

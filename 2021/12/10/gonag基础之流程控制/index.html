@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      golang基础之流程控制 | Solost23&#39;s blog
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Solost23's blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>golang基础之流程控制</h2>
+  <p class="post-date">2021-12-10</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p>流程控制是每种编程语言控制逻辑走向和执行次序的重要部分，流程控制可以说是一门语言的&quot;经脉&quot;。<code>golang</code>中最常用的流程控制有 <code>if</code>和<code>for</code>，而<code>switch</code>和<code>goto</code>主要是位了简化代码、降低重复代码而生的结构，属于扩展类的流程控制。</p>
+<h3 id="<center>if-else选择结构<center>"><center>if else选择结构<center></h3>
+<h4 id="<font-color=red>if条件判断基本写法</font>"><font color=red>if条件判断基本写法</font></h4>
+<p><code>golang</code>中<code>if</code>条件判断的格式如下:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> expression1 &#123;</span><br><span class="line">  branch1</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> expression2 &#123;</span><br><span class="line">  branch2</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  branch3</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>if</code>判断中的<code>if</code>和<code>else</code>都是可选的，可以根据实际需要进行选择。</p>
+<h4 id="<font-color=red>if条件判断特殊写法</font>"><font color=red>if条件判断特殊写法</font></h4>
+<p><code>if</code>条件判断还有一种特殊写法，可以在<code>if</code>表达式之前添加一个执行语句，再根据变量的值进行判断，eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ifDemo2</span><span class="params">()</span></span> &#123;</span><br><span class="line">  <span class="keyword">if</span> score := <span class="number">65</span>; score &gt;= <span class="number">90</span> &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;A&quot;</span>)</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> score &gt; <span class="number">75</span> &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;B&quot;</span>)</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;C&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color=red>注意:</font>特殊写法中<code>score</code>作用域仅为<code>if</code>。</p>
+<h3 id="<center>for循环结构</center>"><center>for循环结构</center></h3>
+<p>golang中所有的循环类型均可以用<code>for</code>关键字完成，golang中只有<code>for</code>循环。<code>for</code>循环的基本格式如下:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> 初始语句; 条件表达式; 结束语句 &#123;</span><br><span class="line">  循环体语句</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">forDemo</span><span class="params">()</span></span> &#123;</span><br><span class="line">  <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i ++ &#123;</span><br><span class="line">    fmt.Println(i)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时<code>i</code>的作用域仅为<code>for</code>循环内部，<code>for</code>循环的初始语句可以被忽略，但是初始语句后的分号必须要写。eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">forDemo2</span><span class="params">()</span></span> &#123;</span><br><span class="line">  i := <span class="number">0</span></span><br><span class="line">  <span class="keyword">for</span> ; i &lt; <span class="number">10</span>; i ++ &#123;</span><br><span class="line">    fmt.Println(i)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时<code>i</code>的作用域为函数内部。<code>for</code>循环的初始语句和结束语句都可以省略。</p>
+<h4 id="<font-color=red>无限循环</font>"><font color=red>无限循环</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> &#123;</span><br><span class="line">  循环语句</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>for</code>循环可以通过break、goto、return、panic语句强制退出循环。</p>
+<h5 id="<font-color=red>跳出多层循环技巧</font>"><font color=red>跳出多层循环技巧</font></h5>
+<p>设置一个变量<code>flag := false</code>，跳出内层循环的同时设置<code>flag = true</code>，外层循环判断<code>flag == true</code>再决定是否跳出外部循环。</p>
+<h3 id="<center>for-range 键值循环</center>"><center>for range 键值循环</center></h3>
+<p><code>golang</code>可以使用<code>for range</code>遍历数组、切片、字符串、map以及通道。通过<code>for range</code>遍历的返回值有以下规律:</p>
+<ul>
+<li>数组、切片、字符串返回索引和值。</li>
+<li><code>map</code>返回键和值。</li>
+<li>通道只返回通道内的值。</li>
+</ul>
+<p>eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">s := <span class="string">&quot;hello world&quot;</span></span><br><span class="line"><span class="keyword">for</span> i, v := <span class="keyword">range</span> s &#123;</span><br><span class="line">  fmt.Println(i, <span class="keyword">string</span>(v))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>switch-case</center>"><center>switch case</center></h3>
+<p>使用switch语句可以方便地对大量的值进行条件判断。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">switchDemo1</span><span class="params">()</span></span> &#123;</span><br><span class="line">  finger := <span class="number">3</span></span><br><span class="line">  <span class="keyword">switch</span> finger &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">    	fmt.Println(<span class="string">&quot;大拇指&quot;</span>)</span><br><span class="line">  	<span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">    fmt.Println(<span class="string">&quot;食指&quot;</span>)</span><br><span class="line">  	<span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">    	fmt.Println(<span class="string">&quot;中指&quot;</span>)</span><br><span class="line">  	<span class="keyword">case</span> <span class="number">4</span>:</span><br><span class="line">    	fmt.Println(<span class="string">&quot;无名指&quot;</span>)</span><br><span class="line">    <span class="keyword">case</span> <span class="number">5</span>:</span><br><span class="line">    	fmt.Println(<span class="string">&quot;小拇指&quot;</span>)</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">    	fmt.Println(<span class="string">&quot;无效输入&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>golang</code>规定每个<code>switch</code>只能有一个<code>default</code>。一个分支可以有多个值，多个<code>case</code>值之间表示或的关系，使用英文逗号分隔。分支还可以使用表达式，这时<code>switch</code>后面不需要跟判断变量，eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">switchDemo2</span><span class="params">()</span></span> &#123;</span><br><span class="line">	age := <span class="number">30</span></span><br><span class="line">	<span class="keyword">switch</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> age &lt; <span class="number">25</span>:</span><br><span class="line">			fmt.Println(<span class="string">&quot;好好学习&quot;</span>)</span><br><span class="line">		<span class="keyword">case</span> age &gt; <span class="number">25</span>:</span><br><span class="line">			fmt.Println(<span class="string">&quot;好好工作&quot;</span>)</span><br><span class="line">		<span class="keyword">case</span> age &gt; <span class="number">60</span>:</span><br><span class="line">			fmt.Println(<span class="string">&quot;好好享受&quot;</span>)</span><br><span class="line">		<span class="keyword">default</span>:</span><br><span class="line">			fmt.Println(<span class="string">&quot;活着真好&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>goto-跳转到指定标签</center>"><center>goto 跳转到指定标签</center></h3>
+<p><code>golang</code>中不推荐使用<code>goto</code>。</p>
+<h3 id="<center>break-跳出循环</center>"><center>break 跳出循环</center></h3>
+<p><code>break</code>语句可以在语句后面添加标签，表示退出某个标签对应的代码块，标签要求必须定义在对应的<code>for</code>、<code>switch</code>和<code>select</code>的代码块上，eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">breakDemo</span><span class="params">()</span></span> &#123;</span><br><span class="line">  BREAKDEMO:</span><br><span class="line">  <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i ++ &#123;</span><br><span class="line">    <span class="keyword">for</span> j ;= <span class="number">0</span>; j &lt; <span class="number">10</span>; j ++ &#123;</span><br><span class="line">      <span class="keyword">if</span> j == <span class="number">2</span> &#123;</span><br><span class="line">        <span class="keyword">break</span> BREAKDEMO</span><br><span class="line">      &#125;</span><br><span class="line">      fmt.Printf(<span class="string">&quot;%v-%v \n&quot;</span>, i, j)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>continue-继续下次循环</center>"><center>continue 继续下次循环</center></h3>
+<p><code>continue</code>语句可以结束当前循环并开启下一次循环，仅限在<code>for</code>循环内使用。在<code>continue</code>语句后添加标签时，表示开始标签对应的循环，eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">continueDemo</span><span class="params">()</span></span> &#123;</span><br><span class="line">  forloop1:</span><br><span class="line">  <span class="keyword">for</span> i ;= <span class="number">0</span>; i &lt; <span class="number">5</span>; i ++ &#123;</span><br><span class="line">    <span class="comment">// forloop2</span></span><br><span class="line">    <span class="keyword">for</span> j := <span class="number">0</span>; j &lt; <span class="number">5</span>; j ++ &#123;</span><br><span class="line">      <span class="keyword">if</span> i == <span class="number">2</span> &amp;&amp; j == <span class="number">2</span> &#123;</span><br><span class="line">        <span class="keyword">continue</span> forloop1</span><br><span class="line">      &#125;</span><br><span class="line">      fmt.Printf(<span class="string">&quot;%v-%v \n&quot;</span>, i, j)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/12/09/golang%E5%9F%BA%E7%A1%80%E4%B9%8B%E5%8F%98%E9%87%8F%E4%B8%8E%E5%B8%B8%E9%87%8F/">
+        <span class="nav-arrow">← </span>
+        
+          golang基础之变量与常量
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/12/10/golang%E5%9F%BA%E7%A1%80%E4%B9%8B%E8%BF%90%E7%AE%97%E7%AC%A6/">
+        
+          golang基础之运算符
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Eif-else%E9%80%89%E6%8B%A9%E7%BB%93%E6%9E%84%3Ccenter%3E"><span class="toc-nav-text">if else选择结构</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eif%E6%9D%A1%E4%BB%B6%E5%88%A4%E6%96%AD%E5%9F%BA%E6%9C%AC%E5%86%99%E6%B3%95%3C/font%3E"><span class="toc-nav-text">if条件判断基本写法</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eif%E6%9D%A1%E4%BB%B6%E5%88%A4%E6%96%AD%E7%89%B9%E6%AE%8A%E5%86%99%E6%B3%95%3C/font%3E"><span class="toc-nav-text">if条件判断特殊写法</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Efor%E5%BE%AA%E7%8E%AF%E7%BB%93%E6%9E%84%3C/center%3E"><span class="toc-nav-text">for循环结构</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E6%97%A0%E9%99%90%E5%BE%AA%E7%8E%AF%3C/font%3E"><span class="toc-nav-text">无限循环</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E8%B7%B3%E5%87%BA%E5%A4%9A%E5%B1%82%E5%BE%AA%E7%8E%AF%E6%8A%80%E5%B7%A7%3C/font%3E"><span class="toc-nav-text">跳出多层循环技巧</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Efor-range%20%E9%94%AE%E5%80%BC%E5%BE%AA%E7%8E%AF%3C/center%3E"><span class="toc-nav-text">for range 键值循环</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Eswitch-case%3C/center%3E"><span class="toc-nav-text">switch case</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Egoto-%E8%B7%B3%E8%BD%AC%E5%88%B0%E6%8C%87%E5%AE%9A%E6%A0%87%E7%AD%BE%3C/center%3E"><span class="toc-nav-text">goto 跳转到指定标签</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Ebreak-%E8%B7%B3%E5%87%BA%E5%BE%AA%E7%8E%AF%3C/center%3E"><span class="toc-nav-text">break 跳出循环</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Econtinue-%E7%BB%A7%E7%BB%AD%E4%B8%8B%E6%AC%A1%E5%BE%AA%E7%8E%AF%3C/center%3E"><span class="toc-nav-text">continue 继续下次循环</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2021/12/10/gonag基础之流程控制/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>

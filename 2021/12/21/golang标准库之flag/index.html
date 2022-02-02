@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      golang标准库之flag | Solost23&#39;s blog
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Solost23's blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>golang标准库之flag</h2>
+  <p class="post-date">2021-12-21</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p><code>golang</code>内置的<code>flag</code>包实现了命令行参数的解析，<code>flag</code>包使得开发命令行工具更加简单。</p>
+<h3 id="<cent>osargs</cent>"><cent>os.Args</cent></h3>
+<p>如果只是简单的想要获取命令行参数，可以像下面的代码示例一样使用<code>os.Args</code>来获取命令行参数。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;os&quot;</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="comment">//os.Args demo</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">//os.Args是一个[]string</span></span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(os.Args) &gt; <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">for</span> index, arg := <span class="keyword">range</span> os.Args &#123;</span><br><span class="line">			fmt.Printf(<span class="string">&quot;args[%d]=%v\n&quot;</span>, index, arg)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将上面的代码执行<code>go build -o &quot;args_demo&quot;</code>编译后执行:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\ASUS\<span class="keyword">go</span>\src\calc\day09\<span class="number">04</span>os_args&gt;<span class="number">04</span>os_args.exe a b c d</span><br><span class="line">args[<span class="number">0</span>]=<span class="number">04</span>os_args.exe</span><br><span class="line">args[<span class="number">1</span>]=a</span><br><span class="line">args[<span class="number">2</span>]=b</span><br><span class="line">args[<span class="number">3</span>]=c</span><br><span class="line">args[<span class="number">4</span>]=d</span><br></pre></td></tr></table></figure>
+<p><code>os.Args</code>是一个存储命令行参数的字符串切片，它的第一个元素是执行文件的名称。</p>
+<h3 id="<center>flag包基本使用</center>"><center>flag包基本使用</center></h3>
+<p>本文介绍了<code>flag</code>包的常用函数和基本用法，更详细的内容请查看<a target="_blank" rel="noopener" href="https://studygolang.com/pkgdoc">官方文档</a>。</p>
+<h4 id="###-<center>flag参数类型</center>">### <center>flag参数类型</center></h4>
+<p>flag 包支持的命令行参数类型有 bool、int、int64、uint、uint64、float、float64、string、duration。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">flag参数</th>
+<th style="text-align:center">有效值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">字符串 flag</td>
+<td style="text-align:center">合法字符串</td>
+</tr>
+<tr>
+<td style="text-align:center">整数 flag</td>
+<td style="text-align:center">1234、0664、0x1234 等类型，也可以是负数。</td>
+</tr>
+<tr>
+<td style="text-align:center">浮点数 flag</td>
+<td style="text-align:center">合法浮点数</td>
+</tr>
+<tr>
+<td style="text-align:center">bool 类型 flag</td>
+<td style="text-align:center">1，0，t，f，T，F，true，false，TRUE，FALSE，True，False。</td>
+</tr>
+<tr>
+<td style="text-align:center">时间段 flag</td>
+<td style="text-align:center">任何合法的时间段字符串。如”300ms”、”-1.5h”、”2h45m”。<br/>合法的单位有”ns”、”us” /“µs”、”ms”、”s”、”m”、”h”。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="<center>定义命令行参数</center>"><center>定义命令行参数</center></h3>
+<h4 id="<font-color=red>flagtype()</font>"><font color=red>flag.Type()</font></h4>
+<p>flag.Type (flag 名，默认值，帮助信息) *Type 例如我们要定义姓名、年龄、婚否三个命令行参数，我们可以按如下方式定义：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">name := flag.String(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;张三&quot;</span>, <span class="string">&quot;姓名&quot;</span>)</span><br><span class="line">age := flag.Int(<span class="string">&quot;age&quot;</span>, <span class="number">18</span>, <span class="string">&quot;年龄&quot;</span>)</span><br><span class="line">married := flag.Bool(<span class="string">&quot;married&quot;</span>, <span class="literal">false</span>, <span class="string">&quot;婚否&quot;</span>)</span><br><span class="line">delay := flag.Duration(<span class="string">&quot;d&quot;</span>, <span class="number">0</span>, <span class="string">&quot;时间间隔&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>需要注意的是，此时 name、age、married、delay 均为对应类型的指针。</p>
+<h4 id="<font-color=red>flagtypevar()</font>"><font color=red>flag.TypeVar()</font></h4>
+<p>基本格式如下：flag.TypeVar (Type 指针，flag 名，默认值，帮助信息) 例如我们要定义姓名、年龄、婚否三个命令行参数，我们可以按如下方式定义：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> name <span class="keyword">string</span></span><br><span class="line"><span class="keyword">var</span> age <span class="keyword">int</span></span><br><span class="line"><span class="keyword">var</span> married <span class="keyword">bool</span></span><br><span class="line"><span class="keyword">var</span> delay time.Duration</span><br><span class="line">flag.StringVar(&amp;name, <span class="string">&quot;name&quot;</span>, <span class="string">&quot;张三&quot;</span>, <span class="string">&quot;姓名&quot;</span>)</span><br><span class="line">flag.IntVar(&amp;age, <span class="string">&quot;age&quot;</span>, <span class="number">18</span>, <span class="string">&quot;年龄&quot;</span>)</span><br><span class="line">flag.BoolVar(&amp;married, <span class="string">&quot;married&quot;</span>, <span class="literal">false</span>, <span class="string">&quot;婚否&quot;</span>)</span><br><span class="line">flag.DurationVar(&amp;delay, <span class="string">&quot;d&quot;</span>, <span class="number">0</span>, <span class="string">&quot;时间间隔&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="<center>flagparse()</center>"><center>flag.Parse()</center></h3>
+<p>通过以上两种方法定义好命令行 flag 参数后，需要通过调用 flag.Parse () 来对命令行参数进行解析。</p>
+<p>支持的命令行参数格式有以下几种：</p>
+<ul>
+<li>-flag xxx （使用空格，一个 - 符号）</li>
+<li>–flag xxx （使用空格，两个 - 符号）</li>
+<li>-flag=xxx （使用等号，一个 - 符号）</li>
+<li>–flag=xxx （使用等号，两个 - 符号）</li>
+</ul>
+<p>其中，布尔型的参数必须使用等号的方式指定。</p>
+<p>Flag 解析在第一个非 flag 参数（单个 “-” 不是 flag 参数）之前停止，或者在终止符 “-” 之后停止。</p>
+<h3 id="<center>flag其他函数</center>"><center>flag其他函数</center></h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">flag.Args()  <span class="comment">//返回命令行参数后的其他参数，以[]string类型</span></span><br><span class="line">flag.NArg()  <span class="comment">//返回命令行参数后的其他参数个数</span></span><br><span class="line">flag.NFlag() <span class="comment">//返回使用的命令行参数个数</span></span><br></pre></td></tr></table></figure>
+<h3 id="<center>完整示例</center>"><center>完整示例</center></h3>
+<h4 id="<font-color=red>定义</font>"><font color=red>定义</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">//定义命令行参数方式1</span></span><br><span class="line">	<span class="keyword">var</span> name <span class="keyword">string</span></span><br><span class="line">	<span class="keyword">var</span> age <span class="keyword">int</span></span><br><span class="line">	<span class="keyword">var</span> married <span class="keyword">bool</span></span><br><span class="line">	<span class="keyword">var</span> delay time.Duration</span><br><span class="line">	flag.StringVar(&amp;name, <span class="string">&quot;name&quot;</span>, <span class="string">&quot;张三&quot;</span>, <span class="string">&quot;姓名&quot;</span>)</span><br><span class="line">	flag.IntVar(&amp;age, <span class="string">&quot;age&quot;</span>, <span class="number">18</span>, <span class="string">&quot;年龄&quot;</span>)</span><br><span class="line">	flag.BoolVar(&amp;married, <span class="string">&quot;married&quot;</span>, <span class="literal">false</span>, <span class="string">&quot;婚否&quot;</span>)</span><br><span class="line">	flag.DurationVar(&amp;delay, <span class="string">&quot;d&quot;</span>, <span class="number">0</span>, <span class="string">&quot;延迟的时间间隔&quot;</span>)</span><br><span class="line"> </span><br><span class="line">	<span class="comment">//解析命令行参数</span></span><br><span class="line">	flag.Parse()</span><br><span class="line">	fmt.Println(name, age, married, delay)</span><br><span class="line">	<span class="comment">//返回命令行参数后的其他参数</span></span><br><span class="line">	fmt.Println(flag.Args())</span><br><span class="line">	<span class="comment">//返回命令行参数后的其他参数个数</span></span><br><span class="line">	fmt.Println(flag.NArg())</span><br><span class="line">	<span class="comment">//返回使用的命令行参数个数</span></span><br><span class="line">	fmt.Println(flag.NFlag())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>使用</font>"><font color=red>使用</font></h4>
+<p>命令行参数使用提示：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\ASUS\<span class="keyword">go</span>\src\calc\day09\<span class="number">05</span>flag&gt;<span class="number">05</span>flag.exe -help</span><br><span class="line">Usage of <span class="number">05</span>flag.exe:</span><br><span class="line">  -age <span class="keyword">int</span></span><br><span class="line">        年龄 (<span class="keyword">default</span> <span class="number">18</span>)</span><br><span class="line">  -d duration</span><br><span class="line">        延迟的时间间隔</span><br><span class="line">  -married</span><br><span class="line">        婚否</span><br><span class="line">  -name <span class="keyword">string</span></span><br><span class="line">        姓名 (<span class="keyword">default</span> <span class="string">&quot;张三&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>正常使用命令行 flag 参数：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\ASUS\<span class="keyword">go</span>\src\calc\day09\<span class="number">05</span>flag&gt;<span class="number">05</span>flag.exe -name ty --age <span class="number">22</span> -married=<span class="literal">false</span> -d=<span class="number">1</span>h30m</span><br><span class="line">ty <span class="number">22</span> <span class="literal">false</span> <span class="number">1</span>h30m0s</span><br><span class="line">[]</span><br><span class="line"><span class="number">0</span></span><br><span class="line"><span class="number">4</span></span><br></pre></td></tr></table></figure>
+<p>使用非 flag 命令行参数：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\ASUS\<span class="keyword">go</span>\src\calc\day09\<span class="number">05</span>flag&gt;<span class="number">05</span>flag.exe a b c d                                  </span><br><span class="line">张三 <span class="number">18</span> <span class="literal">false</span> <span class="number">0</span>s</span><br><span class="line">[a b c d]</span><br><span class="line"><span class="number">4</span></span><br><span class="line"><span class="number">0</span></span><br></pre></td></tr></table></figure>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bhttp-template/">
+        <span class="nav-arrow">← </span>
+        
+          golang标准库之http/template
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bcontext/">
+        
+          golang标准库之context
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccent%3Eosargs%3C/cent%3E"><span class="toc-nav-text">os.Args</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Eflag%E5%8C%85%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%3C/center%3E"><span class="toc-nav-text">flag包基本使用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="####-%3Ccenter%3Eflag%E5%8F%82%E6%95%B0%E7%B1%BB%E5%9E%8B%3C/center%3E"><span class="toc-nav-text">### flag参数类型</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%AE%9A%E4%B9%89%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%8F%82%E6%95%B0%3C/center%3E"><span class="toc-nav-text">定义命令行参数</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eflagtype()%3C/font%3E"><span class="toc-nav-text">flag.Type()</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eflagtypevar()%3C/font%3E"><span class="toc-nav-text">flag.TypeVar()</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Eflagparse()%3C/center%3E"><span class="toc-nav-text">flag.Parse()</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Eflag%E5%85%B6%E4%BB%96%E5%87%BD%E6%95%B0%3C/center%3E"><span class="toc-nav-text">flag其他函数</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%AE%8C%E6%95%B4%E7%A4%BA%E4%BE%8B%3C/center%3E"><span class="toc-nav-text">完整示例</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%AE%9A%E4%B9%89%3C/font%3E"><span class="toc-nav-text">定义</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E4%BD%BF%E7%94%A8%3C/font%3E"><span class="toc-nav-text">使用</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2021/12/21/golang标准库之flag/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>

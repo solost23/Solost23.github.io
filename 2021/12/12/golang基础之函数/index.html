@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      golang基础之函数 | Solost23&#39;s blog
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Solost23's blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>golang基础之函数</h2>
+  <p class="post-date">2021-12-12</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><ul>
+<li>函数是组织好的、可重复使用的、用于执行<font color=red>最基本任务</font>的代码块。</li>
+<li><code>golang</code>中支持函数、匿名函数和闭包，并且函数在<code>golang</code>中属于一等公民。</li>
+<li><code>golang</code>中函数穿参永远是拷贝，即生成一个副本。</li>
+<li><code>golang</code>中函数不支持嵌套定义带名字的函数，支持嵌套调用。</li>
+</ul>
+<h3 id="<center>函数定义</center>"><center>函数定义</center></h3>
+<p><code>golang</code>中定义函数使用<code>func</code>关键字：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> 函数名<span class="params">(参数)</span> <span class="params">(返回值)</span></span> &#123;</span><br><span class="line">  函数体</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">intSum</span><span class="params">(x <span class="keyword">int</span>, y <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">  <span class="keyword">return</span> x + y</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>函数调用</center>"><center>函数调用</center></h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ret := intSum(<span class="number">10</span>, <span class="number">20</span>)</span><br></pre></td></tr></table></figure>
+<p><font color=red>注意</font>:调用有返回值的函数时，可以不接收其返回值。</p>
+<h3 id="<center>参数</center>"><center>参数</center></h3>
+<h4 id="<font-color=red>类型简写</font>"><font color=red>类型简写</font></h4>
+<p>函数的参数中如果相邻变量的类型相同，则可以省略类型,eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">intSum</span><span class="params">(x, y <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">  <span class="keyword">return</span> x + y</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>可变参数</font>"><font color=red>可变参数</font></h4>
+<p>可变参数是指函数的参数数量不固定，<code>golang</code>中可变参数通过在参数名后加…来标识,<font color=red>注意</font>:可变参数通常作为函数的最后一个参数，<font color=red>可变参数类型为切片</font>。eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">intSum2</span><span class="params">(x ... <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">  <span class="comment">// [10 20 30]</span></span><br><span class="line">  fmt.Println(x)</span><br><span class="line">  sum := <span class="number">0</span></span><br><span class="line">  <span class="keyword">for</span> _, v := <span class="keyword">range</span> x &#123;</span><br><span class="line">    sum = sum + v</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> sum</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  ret := intSum2(<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>返回值</center>"><center>返回值</center></h3>
+<h4 id="<font-color=red>多返回值</font>"><font color=red>多返回值</font></h4>
+<p><code>golang</code>中支持多返回值，函数如果有多个返回值必须用<code>()</code>将所有返回值包裹起来。eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">calc</span><span class="params">(x, y <span class="keyword">int</span>)</span> <span class="params">(<span class="keyword">int</span>, <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">  sum := x + y</span><br><span class="line">  sub := x - y</span><br><span class="line">  <span class="keyword">return</span> sum, sub</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  m, n := calc(<span class="number">3</span>, <span class="number">5</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>返回值命名</font>"><font color=red>返回值命名</font></h4>
+<p>函数定义时可以给返回值命名，此时相当于在函数中声明了变量，在函数体中可以直接使用这些变量，最后通过<code>return</code>返回。eg：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">calc</span><span class="params">(x, y <span class="keyword">int</span>)</span> <span class="params">(sum, sub <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">  sum = x + y</span><br><span class="line">  sub = x - y</span><br><span class="line">  <span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>函数进阶</center>"><center>函数进阶</center></h3>
+<h4 id="<font-color=red>变量作用域</font>"><font color=red>变量作用域</font></h4>
+<h5 id="<font-color=red>全局变量</font>"><font color=red>全局变量</font></h5>
+<p>全局变量是定义在函数外部的变量，它在程序整个运行周期内都有效。在函数中可以访问到全局变量。<font color=red>注意</font>:无法在函数内部声明全局变量。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> num <span class="keyword">int64</span> = <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">testGlobalVar</span><span class="params">()</span></span> &#123;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// num=10</span></span><br><span class="line">  fmt.Println(<span class="string">&quot;num=%d \n&quot;</span>, num)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  testGlobalVar()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="<font-color=red>局部变量</font>"><font color=red>局部变量</font></h5>
+<p>局部变量分为两种：函数内部定义的变量和语句块定义的变量，函数内部定义的变量无法在函数外使用，语句块定义的变量无法在语句块外使用。</p>
+<p><font color=red>注意</font>:函数中变量的查找顺序:</p>
+<ul>
+<li>在函数中查找。</li>
+<li>找不到则去函数外层查找(全局or外层函数)。</li>
+<li>一直找到全局，全局都没有则报错。</li>
+</ul>
+<h3 id="<center>函数类型与变量</center>"><center>函数类型与变量</center></h3>
+<h4 id="<font-color=red>定义函数类型</font>"><font color=red>定义函数类型</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> calculation <span class="function"><span class="keyword">func</span><span class="params">(<span class="keyword">int</span>, <span class="keyword">int</span>)</span> <span class="title">int</span></span></span><br></pre></td></tr></table></figure>
+<p>上面定义了一个<code>calculation</code>类型，它是一种函数类型，这种函数接收两个<code>int</code>并返回一个<code>int</code>。凡是满足这个条件的函数都是<code>calculation</code>类型的函数，eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">add</span><span class="params">(x, y <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">  <span class="keyword">return</span> x + y</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>add</code>可以赋值给<code>calculation</code>类型的变量:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> c calculation</span><br><span class="line">c = add</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>函数类型变量</font>"><font color=red>函数类型变量</font></h4>
+<p>我们可以声明函数类型的变量并且为该变量赋值：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">add</span><span class="params">(x, y <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> x + y</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">sub</span><span class="params">(x, y <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> x - y</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">type</span> calculation <span class="function"><span class="keyword">func</span><span class="params">(<span class="keyword">int</span>, <span class="keyword">int</span>)</span> <span class="title">int</span></span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> c calculation  <span class="comment">// 声明一个calculation类型的变量c</span></span><br><span class="line">	c = add  <span class="comment">// 把add赋值给c</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;type of c:%T \n&quot;</span>, c)  <span class="comment">// type of c:main.calculation</span></span><br><span class="line">	fmt.Println(c(<span class="number">1</span>, <span class="number">2</span>))  <span class="comment">// 3 像调用add一样调用c</span></span><br><span class="line"> </span><br><span class="line">	f := add  <span class="comment">// 将函数add赋值给变量f</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;type of f:%T \n&quot;</span>, f)  <span class="comment">// type of f:func(int, int) int</span></span><br><span class="line">	fmt.Println(f(<span class="number">10</span>, <span class="number">20</span>))  <span class="comment">// 30 像调用add一样调用f</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>高阶函数</center>"><center>高阶函数</center></h3>
+<p>高阶函数分为函数作为参数和函数作为返回值两部分。</p>
+<h4 id="<font-color=red>函数作为参数</font>"><font color=red>函数作为参数</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f1</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;hello ty&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f2</span><span class="params">()</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f3</span><span class="params">(x <span class="keyword">func</span>()</span>)</span> &#123;</span><br><span class="line">	x()  <span class="comment">// 调用x</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f4</span><span class="params">(x, y <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> x + y</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// typef1:func(), typef2:func() int f1, f2函数类型不同</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;typef1:%T, typef2:%T \n&quot;</span>, f1, f2)</span><br><span class="line"> </span><br><span class="line">	<span class="comment">// typef3:func(func()), typef4:func(int, int) int</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;typef3:%T, typef4:%T \n&quot;</span>, f3, f4)</span><br><span class="line">	f3(f1)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>函数作为返回值</font>"><font color=red>函数作为返回值</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f2</span><span class="params">()</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f5</span><span class="params">(a, b <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> a + b</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ff</span><span class="params">(x <span class="keyword">func</span>()</span> <span class="title">int</span>) <span class="title">func</span><span class="params">(<span class="keyword">int</span>, <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> f5</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	f7 := ff(f2)  <span class="comment">// f7为f5的内存地址</span></span><br><span class="line">	fmt.Println(f7)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>匿名函数和闭包</center>"><center>匿名函数和闭包</center></h3>
+<h4 id="<font-color=red>匿名函数</font>"><font color=red>匿名函数</font></h4>
+<p><code>golang</code>中函数内部不能再像其他语言那样定义函数，函数内部无法声明带名字的函数，只能定义匿名函数。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span><span class="params">(参数)</span><span class="params">(返回值)</span></span> &#123;</span><br><span class="line">  函数体</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>匿名函数因为没有函数名，所以没办法像普通函数那样调用，匿名函数需要保存到某个变量或作为立即执行函数:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 将匿名函数保存到变量</span></span><br><span class="line">	add := <span class="function"><span class="keyword">func</span> <span class="params">(x, y <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">		<span class="keyword">return</span> x + y</span><br><span class="line">	&#125;</span><br><span class="line">	add(<span class="number">10</span>, <span class="number">20</span>)  <span class="comment">// 通过变量调用匿名函数</span></span><br><span class="line"> </span><br><span class="line">	<span class="comment">// 自执行函数：匿名函数定义完加（）直接执行</span></span><br><span class="line">	<span class="function"><span class="keyword">func</span><span class="params">(x, y <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">		fmt.Println( x + y )</span><br><span class="line">	&#125;(<span class="number">10</span>, <span class="number">20</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>匿名函数多用于实现回掉函数和闭包。</p>
+<h4 id="<font-color=red>闭包</font>"><font color=red>闭包</font></h4>
+<p>闭包指一个函数与其相关的引用环境组合而成的实体，简单来说，闭包=函数+引用环境。</p>
+<p>闭包的意义:返回的函数，不仅仅是一个函数，在该函数外还包裹了一层作用域，这使得该函数无论在何处调用会优先使用自己外层包裹的作用域。eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">adder</span><span class="params">()</span> <span class="title">func</span><span class="params">(<span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> x <span class="keyword">int</span></span><br><span class="line">	<span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(y <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">		x += y</span><br><span class="line">		<span class="keyword">return</span> x</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> f = adder()</span><br><span class="line">	fmt.Println(f(<span class="number">10</span>))  <span class="comment">// 10</span></span><br><span class="line">	fmt.Println(f(<span class="number">20</span>))  <span class="comment">// 30</span></span><br><span class="line">	fmt.Println(f(<span class="number">30</span>))  <span class="comment">// 60</span></span><br><span class="line"> </span><br><span class="line">	f1 := adder()</span><br><span class="line">	fmt.Println(f1(<span class="number">40</span>))  <span class="comment">// 40</span></span><br><span class="line">	fmt.Println(f1(<span class="number">50</span>))  <span class="comment">// 90</span></span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="###- <center>defer语句</center>">###  <center>defer语句</center></h4>
+<p><code>golang</code>中的<code>defer</code>语句会将其后面跟随的语句进行延迟处理。在<code>defer</code>归属的函数即将返回时将延迟处理的语句按<code>defer</code>定义的逆序执行，也就是说先被<code>defer</code>的语句最后被执行。eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;start&quot;</span>)</span><br><span class="line">	<span class="keyword">defer</span> fmt.Println(<span class="number">1</span>)</span><br><span class="line">	<span class="keyword">defer</span> fmt.Println(<span class="number">2</span>)</span><br><span class="line">	<span class="keyword">defer</span> fmt.Println(<span class="number">3</span>)</span><br><span class="line">	fmt.Println(<span class="string">&quot;end&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出结果:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">start</span><br><span class="line">end</span><br><span class="line"><span class="number">3</span></span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>由于<code>defer</code>语句延迟调用的特性，所以<code>defer</code>语句能非常方便地处理资源释放问题。比如:资源清理、文件关闭、解锁记录时间等。</p>
+<h4 id="<font-color=red>defer执行时机</font>"><font color=red>defer执行时机</font></h4>
+<p><code>golang</code>中函数的<code>return</code>语句在底层并不是原子操作，它分为给返回值赋值和<code>ret</code>指令两步。而<code>defer</code>语句执行的时机就在返回值赋值操作后，<code>ret</code>指令执行前，具体如下图所示:</p>
+<p><img src="/images/defer.png" alt=""></p>
+<h4 id="<font-color=red>defer经典案例</font>"><font color=red>defer经典案例</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f1</span><span class="params">()</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	x := <span class="number">5</span></span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		x ++</span><br><span class="line">	&#125;()</span><br><span class="line">	<span class="keyword">return</span> x  <span class="comment">// 5</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f2</span><span class="params">()</span> <span class="params">(x <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span>&#123;</span><br><span class="line">		x ++</span><br><span class="line">	&#125;()</span><br><span class="line">	<span class="keyword">return</span> <span class="number">5</span>  <span class="comment">// 6</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f3</span><span class="params">()</span> <span class="params">(y <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	x := <span class="number">5</span></span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		x ++</span><br><span class="line">	&#125;()</span><br><span class="line">	<span class="keyword">return</span> x  <span class="comment">// 5</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f4</span><span class="params">()</span> <span class="params">(x <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">(x <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">		x ++</span><br><span class="line">	&#125;(x)</span><br><span class="line">	<span class="keyword">return</span> <span class="number">5</span>  <span class="comment">// 5</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(f1())</span><br><span class="line">	fmt.Println(f2())</span><br><span class="line">	fmt.Println(f3())</span><br><span class="line">	fmt.Println(f4())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>内置函数</center>"><center>内置函数</center></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">内置函数</th>
+<th style="text-align:center">介绍</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">close</td>
+<td style="text-align:center">主要用来关闭channel</td>
+</tr>
+<tr>
+<td style="text-align:center">len</td>
+<td style="text-align:center">用来求长度，比如string、array、slice、map、channel</td>
+</tr>
+<tr>
+<td style="text-align:center">new</td>
+<td style="text-align:center">用来分配内存，主要用来分配值类型，比如int、struct。返回值是指针</td>
+</tr>
+<tr>
+<td style="text-align:center">make</td>
+<td style="text-align:center">用来分配内存，主要用来分配引用类型，比如channel、map、slice</td>
+</tr>
+<tr>
+<td style="text-align:center">append</td>
+<td style="text-align:center">用来追加元素到数组、slice中</td>
+</tr>
+<tr>
+<td style="text-align:center">delete</td>
+<td style="text-align:center">用来删除map中的键值对</td>
+</tr>
+<tr>
+<td style="text-align:center">panic和recover</td>
+<td style="text-align:center">用来做错误处理</td>
+</tr>
+</tbody>
+</table>
+<h3 id="<center>panic/recover</center>"><center>panic/recover</center></h3>
+<p><code>golang</code>中目前没有异常机制，但是可以使用<code>panic/recover</code>模式来处理错误。<code>panic</code>可以在任何地方引发，但<code>recover</code>只有在<code>defer</code>调用的函数中有效。eg：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">funcA</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;func A&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">funcB</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="built_in">panic</span>(<span class="string">&quot;panic in B&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">funcC</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;func C&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	funcA()</span><br><span class="line">	funcB()</span><br><span class="line">	funcC()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>结果为:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">A</span></span></span><br><span class="line"><span class="built_in">panic</span>: <span class="built_in">panic</span> in B</span><br><span class="line"> </span><br><span class="line">goroutine <span class="number">1</span> [running]:</span><br><span class="line">main.funcB(...)</span><br><span class="line">        E:/桌面文件/github.com/test/test_panic/main.<span class="keyword">go</span>:<span class="number">10</span>      </span><br><span class="line">main.main()</span><br><span class="line">        E:/桌面文件/github.com/test/test_panic/main.<span class="keyword">go</span>:<span class="number">19</span> +<span class="number">0xa5</span></span><br><span class="line">exit status <span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p>程序运行期间函数<code>funcB</code>引发了<code>panic</code>导致程序崩溃，这个时候我们就可以通过<code>recover</code>将程序恢复，继续向后执行。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">funcA</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;func A&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">funcB</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		err := <span class="built_in">recover</span>()</span><br><span class="line">		<span class="comment">// 如果程序出现了panic错误，可以通过recover恢复过来</span></span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			fmt.Println(<span class="string">&quot;recover in B&quot;</span>)</span><br><span class="line">			fmt.Println(<span class="string">&quot;func B&quot;</span>)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line">	<span class="built_in">panic</span>(<span class="string">&quot;panic in B&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">funcC</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;func C&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	funcA()</span><br><span class="line">	funcB()</span><br><span class="line">	funcC()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>结果为:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">A</span></span></span><br><span class="line"><span class="built_in">recover</span> in B</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">B</span></span>      </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">C</span></span></span><br></pre></td></tr></table></figure>
+<p><font color=red>注意</font>:</p>
+<ul>
+<li>Recover()必须搭配<code>defer</code>使用。</li>
+<li><code>defer</code>一定要在可能引发<code>panic</code>的语句之前定义。</li>
+<li>一般不推荐修复，该<code>panic</code>就<code>panic</code>。</li>
+</ul>
+<h3 id="<center>函数传参永远是拷贝补充</center>"><center>函数传参永远是拷贝补充</center></h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f1_int</span><span class="params">(x <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%p \n&quot;</span>, &amp;x)</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f2_slice</span><span class="params">(y []<span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%p \n&quot;</span>, &amp;y)</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	m := <span class="number">30</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;%p \n&quot;</span>, &amp;m)  <span class="comment">// 0xc0000120a0</span></span><br><span class="line">	f1_int(m)                <span class="comment">// 0xc0000120a8</span></span><br><span class="line">	</span><br><span class="line">        <span class="comment">// 可以发现引用类型作为函数参数也是拷贝</span></span><br><span class="line">	n := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;      <span class="comment">// 0xc00000a420</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;%p \n&quot;</span>, &amp;n)   <span class="comment">// 0xc00000a423</span></span><br><span class="line">	f2_slice(n)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/12/12/golang%E5%9F%BA%E7%A1%80%E4%B9%8B%E5%8C%85/">
+        <span class="nav-arrow">← </span>
+        
+          golang基础之包
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/12/13/golang%E5%9F%BA%E7%A1%80%E4%B9%8B%E5%B9%B6%E5%8F%91/">
+        
+          golang基础之并发编程
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%87%BD%E6%95%B0%E5%AE%9A%E4%B9%89%3C/center%3E"><span class="toc-nav-text">函数定义</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%3C/center%3E"><span class="toc-nav-text">函数调用</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%8F%82%E6%95%B0%3C/center%3E"><span class="toc-nav-text">参数</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E7%B1%BB%E5%9E%8B%E7%AE%80%E5%86%99%3C/font%3E"><span class="toc-nav-text">类型简写</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%8F%AF%E5%8F%98%E5%8F%82%E6%95%B0%3C/font%3E"><span class="toc-nav-text">可变参数</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E8%BF%94%E5%9B%9E%E5%80%BC%3C/center%3E"><span class="toc-nav-text">返回值</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%A4%9A%E8%BF%94%E5%9B%9E%E5%80%BC%3C/font%3E"><span class="toc-nav-text">多返回值</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E8%BF%94%E5%9B%9E%E5%80%BC%E5%91%BD%E5%90%8D%3C/font%3E"><span class="toc-nav-text">返回值命名</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%87%BD%E6%95%B0%E8%BF%9B%E9%98%B6%3C/center%3E"><span class="toc-nav-text">函数进阶</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%8F%98%E9%87%8F%E4%BD%9C%E7%94%A8%E5%9F%9F%3C/font%3E"><span class="toc-nav-text">变量作用域</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F%3C/font%3E"><span class="toc-nav-text">全局变量</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F%3C/font%3E"><span class="toc-nav-text">局部变量</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%87%BD%E6%95%B0%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%8F%98%E9%87%8F%3C/center%3E"><span class="toc-nav-text">函数类型与变量</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%AE%9A%E4%B9%89%E5%87%BD%E6%95%B0%E7%B1%BB%E5%9E%8B%3C/font%3E"><span class="toc-nav-text">定义函数类型</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%87%BD%E6%95%B0%E7%B1%BB%E5%9E%8B%E5%8F%98%E9%87%8F%3C/font%3E"><span class="toc-nav-text">函数类型变量</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0%3C/center%3E"><span class="toc-nav-text">高阶函数</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%87%BD%E6%95%B0%E4%BD%9C%E4%B8%BA%E5%8F%82%E6%95%B0%3C/font%3E"><span class="toc-nav-text">函数作为参数</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%87%BD%E6%95%B0%E4%BD%9C%E4%B8%BA%E8%BF%94%E5%9B%9E%E5%80%BC%3C/font%3E"><span class="toc-nav-text">函数作为返回值</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%8C%BF%E5%90%8D%E5%87%BD%E6%95%B0%E5%92%8C%E9%97%AD%E5%8C%85%3C/center%3E"><span class="toc-nav-text">匿名函数和闭包</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%8C%BF%E5%90%8D%E5%87%BD%E6%95%B0%3C/font%3E"><span class="toc-nav-text">匿名函数</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E9%97%AD%E5%8C%85%3C/font%3E"><span class="toc-nav-text">闭包</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="####-%20%3Ccenter%3Edefer%E8%AF%AD%E5%8F%A5%3C/center%3E"><span class="toc-nav-text">###  defer语句</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Edefer%E6%89%A7%E8%A1%8C%E6%97%B6%E6%9C%BA%3C/font%3E"><span class="toc-nav-text">defer执行时机</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Edefer%E7%BB%8F%E5%85%B8%E6%A1%88%E4%BE%8B%3C/font%3E"><span class="toc-nav-text">defer经典案例</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%86%85%E7%BD%AE%E5%87%BD%E6%95%B0%3C/center%3E"><span class="toc-nav-text">内置函数</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Epanic/recover%3C/center%3E"><span class="toc-nav-text">panic&#x2F;recover</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%87%BD%E6%95%B0%E4%BC%A0%E5%8F%82%E6%B0%B8%E8%BF%9C%E6%98%AF%E6%8B%B7%E8%B4%9D%E8%A1%A5%E5%85%85%3C/center%3E"><span class="toc-nav-text">函数传参永远是拷贝补充</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2021/12/12/golang基础之函数/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>

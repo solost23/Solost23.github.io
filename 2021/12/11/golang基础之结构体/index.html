@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      golang基础之结构体 | Solost23&#39;s blog
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Solost23's blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>golang基础之结构体</h2>
+  <p class="post-date">2021-12-11</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p><code>golang</code>中没有类的概念，也不支持类的继承等面向对象的概念。<code>golang</code>中通过结构体的内嵌配合接口比面向对象具有更高的扩展性和灵活性。</p>
+<h3 id="<center>自定义类型和类型别名</center>"><center>自定义类型和类型别名</center></h3>
+<h4 id="<font-color=red>自定义类型</font>"><font color=red>自定义类型</font></h4>
+<p><code>golang</code>中有一些基本的数据类型，如string、整型、浮点型、布尔型等数据类型，<code>golang</code>中可以使用<code>type</code>来定义自定义类型，自定义类型是定义了一个全新的类型。我们可以基于内置的基本类型定义，也可以通过<code>struct</code>定义。eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将MyInt定义为int类型</span></span><br><span class="line"><span class="keyword">type</span> MyInt <span class="keyword">int</span></span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>类型别名</font>"><font color=red>类型别名</font></h4>
+<p>类型别名规定:<code>TypeAlias</code>只是<code>Type</code>的别名，本质上<code>TypeAlias</code>与<code>Type</code>是同一个类型。eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> TypeAlias = Type</span><br></pre></td></tr></table></figure>
+<p>之前见过的<code>rune</code>和<code>byte</code>就是类型别名，它们的定义如下:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="keyword">byte</span> = <span class="keyword">uint8</span></span><br><span class="line"><span class="keyword">type</span> <span class="keyword">rune</span> = <span class="keyword">int32</span></span><br></pre></td></tr></table></figure>
+<h3 id="<center>类型定义和类型别名的区别</center>"><center>类型定义和类型别名的区别</center></h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 类型定义</span></span><br><span class="line"><span class="keyword">type</span> NewInt <span class="keyword">int</span></span><br><span class="line"> </span><br><span class="line"><span class="comment">// 类型别名</span></span><br><span class="line"><span class="keyword">type</span> MyInt = <span class="keyword">int</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> a NewInt</span><br><span class="line">	<span class="keyword">var</span> b MyInt</span><br><span class="line">  <span class="comment">// type of a:main.NewInt</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;type of a:%T \n&quot;</span>, a)</span><br><span class="line">  <span class="comment">// type of b:int</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;type of b:%T \n&quot;</span>, b)  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>结果显示<code>a</code>的类型是main.NewInt，表示<code>main</code>包下定义的<code>NewInt</code>类型，代码编译完也保留。<code>b</code>的类型是<code>int</code>。<code>MyInt</code>类型只会在代码中存在，编译完成时并不会有<code>MyInt</code>类型。</p>
+<h3 id="<center>结构体</center>"><center>结构体</center></h3>
+<p><code>golang</code>提供了一种自定义数据类型，可以封装多个基本数据类型，这种数据类型叫结构体，也就是说我们可以通过<code>struct</code>来定义自己的类型了，<code>golang</code>中通过<code>struct</code>来实现面向对象。</p>
+<h4 id="<font-color=red>结构体定义</font>"><font color=red>结构体定义</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> typeName <span class="keyword">struct</span> &#123;</span><br><span class="line">  fieldName fieldType</span><br><span class="line">  fieldNmae fieldType</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">	name, city <span class="keyword">string</span></span><br><span class="line">	age <span class="keyword">int8</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样我们就拥有了一个<code>person</code>的自定义类型，<code>golang</code>内置的基本数据类型用来描述一个值，而结构体用来描述一组值。</p>
+<h4 id="<font-color=red>结构体实例化</font>"><font color=red>结构体实例化</font></h4>
+<p>只有当结构体实例化时才会真正地分配内存，结构体本身也是一种类型，我们可以像声明内置类型一样使用<code>var</code>声明结构体类型，格式如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> structName structType</span><br></pre></td></tr></table></figure>
+<h5 id="<font-color=red>基本实例化</font>"><font color=red>基本实例化</font></h5>
+<p>我们可通过<code>.</code>来访问结构体成员变量。</p>
+<p>Eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">  name, city <span class="keyword">string</span></span><br><span class="line">  age <span class="keyword">int8</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  <span class="keyword">var</span> p1 Person</span><br><span class="line">  p1.name = <span class="string">&quot;ty&quot;</span></span><br><span class="line">  p1.city = <span class="string">&quot;北京&quot;</span></span><br><span class="line">  p1.age = <span class="number">18</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="<font-color=red>匿名结构体</font>"><font color=red>匿名结构体</font></h5>
+<p>在定义一些临时数据结构等场景下还可以使用匿名结构体，例如函数中临时使用，eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  <span class="keyword">var</span> user <span class="keyword">struct</span> &#123;Name <span class="keyword">string</span>; Age <span class="keyword">int</span>&#125;</span><br><span class="line">  user.Name = <span class="string">&quot;ty&quot;</span></span><br><span class="line">  user.Age = <span class="number">18</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="<font-color=red>创建指针类型结构体</font>"><font color=red>创建指针类型结构体</font></h5>
+<p>我们可以通过<code>new</code>对结构体实例化，得到的是结构体的地址,eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">  name, city <span class="keyword">string</span></span><br><span class="line">  age <span class="keyword">int8</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  <span class="keyword">var</span> p2 = <span class="built_in">new</span>(person)</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// *main.Person</span></span><br><span class="line">  fmt.Printf(<span class="string">&quot;%T \n&quot;</span>, p2)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>需要注意的是<code>golang</code>支持对结构体指针直接使用，来访问结构体的成员:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">  name, city <span class="keyword">string</span></span><br><span class="line">  age <span class="keyword">int8</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  <span class="keyword">var</span> p2 = <span class="built_in">new</span>(Person)</span><br><span class="line">  p2.name = <span class="string">&quot;ty&quot;</span></span><br><span class="line">  p2.age = <span class="number">18</span></span><br><span class="line">  p2.city = <span class="string">&quot;北京&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="<font-color=red>取结构体地址实例化</font>"><font color=red>取结构体地址实例化</font></h5>
+<p>使用<code>&amp;</code>对结构体进行取地址操作相当于对该结构体类型进行了一次<code>new</code>实例化操作:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">  name, city <span class="keyword">string</span></span><br><span class="line">  age <span class="keyword">int8</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  p3 := &amp;Person&#123;&#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// *main.Person</span></span><br><span class="line">  fmt.Printf(<span class="string">&quot;%T \n&quot;</span>, p3)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color=red>注意</font>:<code>p3.name=&quot;ty&quot;</code>实际上在底层是<code>(*p3).name = &quot;ty&quot;</code>,这是<code>golang</code>帮我们实现的语法糖。</p>
+<h4 id="<font-color=red>结构体初始化</font>"><font color=red>结构体初始化</font></h4>
+<p>未初始化的结构体其成员变量都是对应其类型的零值。</p>
+<h5 id="<font-color=red>访问成员变量的方式初始化</font>"><font color=red>访问成员变量的方式初始化</font></h5>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">  name, city <span class="keyword">string</span></span><br><span class="line">  age <span class="keyword">int8</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  <span class="keyword">var</span> p1 Person</span><br><span class="line">  p1.name = <span class="string">&quot;ty&quot;</span></span><br><span class="line">  p1.city = <span class="string">&quot;北京&quot;</span></span><br><span class="line">  p1.age = <span class="number">18</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也可以对结构体指针初始化。</p>
+<h5 id="<font-color=red>使用键值对初始化</font>"><font color=red>使用键值对初始化</font></h5>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">  name, city <span class="keyword">string</span></span><br><span class="line">  age <span class="keyword">int8</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  p5 := Person &#123;</span><br><span class="line">    name: <span class="string">&quot;ty&quot;</span>, </span><br><span class="line">    city: <span class="string">&quot;北京&quot;</span>, </span><br><span class="line">    age: <span class="number">18</span>, </span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也可以对结构体指针进行键值对初始化，eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">p6 := &amp;Person &#123;</span><br><span class="line">  name: <span class="string">&quot;ty&quot;</span>, </span><br><span class="line">  city: <span class="string">&quot;北京&quot;</span>, </span><br><span class="line">  age: <span class="number">18</span>, </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="<font-color=red>使用值列表初始化</font>"><font color=red>使用值列表初始化</font></h5>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">p7 := Person &#123;</span><br><span class="line">  <span class="string">&quot;ty&quot;</span>, </span><br><span class="line">  <span class="string">&quot;北京&quot;</span>, </span><br><span class="line">  <span class="number">18</span>, </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也可以对结构体指针进行列表初始化。</p>
+<p>使用列表初始化时<font color=red>注意</font>:</p>
+<ul>
+<li>必须初始化结构体所有成员变量。</li>
+<li>初始值的填充顺序必须与字段在结构体中的声明顺序一致。</li>
+<li>该方式不能和键值对初始化混用。</li>
+</ul>
+<h3 id="<center>函数参数是值结构体类型与函数参数是指针结构体类型的区别</center>"><center>函数参数是值结构体类型与函数参数是指针结构体类型的区别</center></h3>
+<p><code>golang</code>中函数传参永远是拷贝，所以传结构体修改也是修改副本，此时指针的作用就显现出来了，eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">  name <span class="keyword">string</span></span><br><span class="line">  gender <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">f2</span><span class="params">(x *Person)</span></span> &#123;</span><br><span class="line">  <span class="comment">// x.gender = &quot;female&quot;</span></span><br><span class="line">  (*x).gender = <span class="string">&quot;female&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  p := Person &#123;</span><br><span class="line">    name: <span class="string">&quot;ty&quot;</span>, </span><br><span class="line">    gender: <span class="string">&quot;male&quot;</span>, </span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  fmt.Println(p.gender)</span><br><span class="line">  f2(&amp;p)</span><br><span class="line">  fmt.Println(p.gender)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>结构体内存布局</center>"><center>结构体内存布局</center></h3>
+<p>结构体占用一块连续的内存空间:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> test <span class="keyword">struct</span> &#123;</span><br><span class="line">	a <span class="keyword">int8</span></span><br><span class="line">	b <span class="keyword">int8</span></span><br><span class="line">	c <span class="keyword">int8</span></span><br><span class="line">	d <span class="keyword">int8</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	n := test &#123;</span><br><span class="line">		<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, </span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;n.a %p \n&quot;</span>, &amp;n.a)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;n.b %p \n&quot;</span>, &amp;n.b)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;n.c %p \n&quot;</span>, &amp;n.c)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;n.d %p \n&quot;</span>, &amp;n.d)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出结果为:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">n.a <span class="number">0xc0000120a0</span> </span><br><span class="line">n.b <span class="number">0xc0000120a1</span> </span><br><span class="line">n.c <span class="number">0xc0000120a2</span> </span><br><span class="line">n.d <span class="number">0xc0000120a3</span></span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>空结构体</font>"><font color=red>空结构体</font></h4>
+<p>空结构体不占用内存空间。</p>
+<h3 id="<center>构造函数</center>"><center>构造函数</center></h3>
+<p><code>golang</code>中结构体没有构造函数，但是我们可以自己实现。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newPerson</span><span class="params">(name, city <span class="keyword">string</span>, age <span class="keyword">int</span>)</span> *<span class="title">Person</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;Person &#123;</span><br><span class="line">		name: name, </span><br><span class="line">		city: city, </span><br><span class="line">		age: age, </span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color=red>注意</font>:</p>
+<ul>
+<li>构造函数只用于初始化对象。</li>
+<li>构造函数约定俗成用new开头。</li>
+<li>日常开发中一般都是返回结构体指针。</li>
+</ul>
+<h3 id="<center>方法和接收者</center>"><center>方法和接收者</center></h3>
+<p><code>golang</code>中方法是一种<font color=red>作用于特定类型变量的函数</font>。这种特定类型变量叫做<font color=red>接收者</font>。接收者的概念类似于其他语言中的<code>this</code>或<code>self</code>。<code>golang</code>规定方法的上面都要加注释。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(接收者变量 接收者类型)</span> 方法名<span class="params">(参数列表)</span> <span class="params">(返回参数)</span></span> &#123;</span><br><span class="line">	函数体</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中:</p>
+<ul>
+<li>接收者变量：接收者中的参数变量名在命名时官方建议使用接收者类型名称首字母小写，而不是<code>self</code>、<code>this</code>之类的命名。</li>
+<li>接收者类型：接收者类型和参数类似，可以是指针类型和非指针类型。</li>
+<li>方法名、参数列表、返回参数：具体格式与函数定义相同。</li>
+</ul>
+<p>Eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">  name <span class="keyword">string</span></span><br><span class="line">  age <span class="keyword">int8</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newPerson</span><span class="params">(name <span class="keyword">string</span>, age <span class="keyword">int8</span>)</span> *<span class="title">Person</span></span> &#123;</span><br><span class="line">  <span class="keyword">return</span> &amp;Person &#123;</span><br><span class="line">    name: name, </span><br><span class="line">    age: age, </span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Person)</span> <span class="title">Dream</span><span class="params">()</span></span> &#123;</span><br><span class="line">  fmt.Println(p.name, <span class="string">&quot;正在做梦...&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  p1 := newPerson(<span class="string">&quot;ty&quot;</span>, <span class="number">18</span>)</span><br><span class="line">  p1.Dream()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>方法与函数的区别是：函数不属于任何类型，方法属于特定类型。</p>
+<h3 id="<center>指针类型接收者与值类型接收者</center>"><center>指针类型接收者与值类型接收者</center></h3>
+<h4 id="<font-color=red>指针类型接受者(常用)</font>"><font color=red>指针类型接受者(常用)</font></h4>
+<p>指针类型的接收者由一个结构体的指针组成，由于指针的特性，调用方法时修改接收者指针的任意成员变量，在方法结束后，修改都是有效的。这种方式就十分接机其它语言中的<code>this</code>或<code>self</code>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Person)</span> <span class="title">setAge</span> <span class="params">(newAge <span class="keyword">int8</span>)</span></span> &#123;</span><br><span class="line">  p.age = newAge</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  p2 := newPerson(<span class="string">&quot;ty&quot;</span>, <span class="number">18</span>)</span><br><span class="line">  p2.setAge(<span class="number">12</span>)</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 12</span></span><br><span class="line">  fmt.Println(p2.age)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>值类型接受者</font>"><font color=red>值类型接受者</font></h4>
+<p>当方法作用于值类型接收者时，<code>golang</code>会在代码运行时将接收者的值复制一份。在值类型接收者的方法中可以获取接收者的成员值，但修改操作只是针对脚本，无法修改接收者变量本身：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p Person)</span> <span class="title">setAge</span> <span class="params">(newAge <span class="keyword">int8</span>)</span></span> &#123;</span><br><span class="line">	p.age = newAge</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	p2 := newPerson(<span class="string">&quot;ty&quot;</span>, <span class="number">21</span>)</span><br><span class="line">	p2.setAge(<span class="number">12</span>)</span><br><span class="line">	fmt.Println(p2.age)  <span class="comment">// 21</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>任意类型添加方法</center>"><center>任意类型添加方法</center></h3>
+<p><code>golang</code>中接收者的类型可以是任何类型，不仅仅是结构体，任何类型都可以拥有方法。eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> MyInt <span class="keyword">int</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *MyInt)</span> <span class="title">sayHello</span><span class="params">()</span></span> &#123;</span><br><span class="line">  fmt.Println(<span class="string">&quot;sayHello...&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  <span class="keyword">var</span> m1 MyInt</span><br><span class="line">  m1.sayHello()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color=red>注意</font>:非本地类型不能定义方法，例如不能给<code>int</code>定义，也就是说我们不能给别的包的类型添加方法。</p>
+<h3 id="<center>结构体的匿名字段</center>"><center>结构体的匿名字段</center></h3>
+<p>结构体允许其成员字段在声明时没有字段名而只有类型，这种没有名字的字段称为匿名字段:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">  <span class="keyword">string</span></span><br><span class="line">  <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  p1 := &amp;Person &#123;</span><br><span class="line">    <span class="string">&quot;ty&quot;</span>, </span><br><span class="line">    <span class="number">18</span>, </span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// *main.Person&#123;string:&quot;ty&quot;,int:18&#125;</span></span><br><span class="line">  fmt.Printf(<span class="string">&quot;%#v \n&quot;</span>)</span><br><span class="line">  <span class="comment">// ty 18</span></span><br><span class="line">  fmt.Println(p1.<span class="keyword">string</span>, p1.<span class="keyword">int</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color=red>注意</font>:这里的匿名字段并不代表没有字段名，而是默认采用类型名作为字段名，结构体要求字段名必须唯一，因此<font color=red>一个结构体中同种类型的匿名字段只能有一个。</p>
+<h3 id="<center>嵌套结构体</center>"><center>嵌套结构体</center></h3>
+<p>一个结构体可以嵌套包含另一个结构体或结构体指针，eg;</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Address <span class="keyword">struct</span> &#123;</span><br><span class="line">  Province <span class="keyword">string</span></span><br><span class="line">  City <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">  Name <span class="keyword">string</span></span><br><span class="line">  Gender <span class="keyword">string</span></span><br><span class="line">  Address Address</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  user1 := &amp;User &#123;</span><br><span class="line">    Name: <span class="string">&quot;ty&quot;</span>, </span><br><span class="line">    Gender: <span class="string">&quot;male&quot;</span>, </span><br><span class="line">    Address: &amp;Address &#123;</span><br><span class="line">      Province: <span class="string">&quot;北京&quot;</span>, </span><br><span class="line">      City: <span class="string">&quot;北京&quot;</span>, </span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>嵌套匿名字段</center>"><center>嵌套匿名字段</center></h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Address 地址结构体</span></span><br><span class="line"><span class="keyword">type</span> Address <span class="keyword">struct</span> &#123;</span><br><span class="line">	Province <span class="keyword">string</span></span><br><span class="line">	City     <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//User 用户结构体</span></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">	Name    <span class="keyword">string</span></span><br><span class="line">	Gender  <span class="keyword">string</span></span><br><span class="line">	Address <span class="comment">//匿名字段</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> user2 User</span><br><span class="line">	user2.Name = <span class="string">&quot;ty&quot;</span></span><br><span class="line">	user2.Gender = <span class="string">&quot;male&quot;</span></span><br><span class="line">	user2.Address.Province = <span class="string">&quot;北京&quot;</span>    <span class="comment">// 匿名字段默认使用类型名作为字段名</span></span><br><span class="line">	user2.City = <span class="string">&quot;北京&quot;</span>                <span class="comment">// 匿名字段可以省略</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;user2=%#v\n&quot;</span>, user2) <span class="comment">//user2=main.User&#123;Name:&quot;ty&quot;, Gender:&quot;male&quot;, Address:main.Address&#123;Province:&quot;北京&quot;, City:&quot;北京&quot;&#125;&#125;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当访问结构体成员时会先在结构体中查找字段，找不到再去嵌套的匿名字段中查找。</p>
+<h3 id="<center>结构体的“继承”</center>"><center>结构体的“继承”</center></h3>
+<p><code>golang</code>中没有继承的概念，但使用结构体可以实现“继承”:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Animal 动物</span></span><br><span class="line"><span class="keyword">type</span> Animal <span class="keyword">struct</span> &#123;</span><br><span class="line">	name <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(a *Animal)</span> <span class="title">move</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%s会动！\n&quot;</span>, a.name)</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//Dog 狗</span></span><br><span class="line"><span class="keyword">type</span> Dog <span class="keyword">struct</span> &#123;</span><br><span class="line">	Feet    <span class="keyword">int8</span></span><br><span class="line">	*Animal <span class="comment">//通过嵌套匿名结构体实现继承</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(d *Dog)</span> <span class="title">wang</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%s会汪汪汪~\n&quot;</span>, d.name)</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	d1 := &amp;Dog&#123;</span><br><span class="line">		Feet: <span class="number">4</span>,</span><br><span class="line">		Animal: &amp;Animal&#123; <span class="comment">//注意嵌套的是结构体指针</span></span><br><span class="line">			name: <span class="string">&quot;乐乐&quot;</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">	&#125;</span><br><span class="line">	d1.wang() <span class="comment">//乐乐会汪汪汪~</span></span><br><span class="line">	d1.move() <span class="comment">//乐乐会动！</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>结构体字段的可见性</center>"><center>结构体字段的可见性</center></h3>
+<p>结构体中字段名大写开头表示可公开访问，小写表示私有(仅在定义当前结构体的包中可以访问)。</p>
+<h3 id="<center>结构体与json序列化</center>"><center>结构体与JSON序列化</center></h3>
+<p><code>json</code>是一种轻量级的数据交换格式。易于人阅读和编写。同时也易于机器解析和生成。<code>json</code>键值对是用来保存<code>js</code>对象的一种方式。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Student 学生</span></span><br><span class="line"><span class="keyword">type</span> Student <span class="keyword">struct</span> &#123;</span><br><span class="line">	ID     <span class="keyword">int</span></span><br><span class="line">	Gender <span class="keyword">string</span></span><br><span class="line">	Name   <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//Class 班级</span></span><br><span class="line"><span class="keyword">type</span> Class <span class="keyword">struct</span> &#123;</span><br><span class="line">	Title    <span class="keyword">string</span></span><br><span class="line">	Students []*Student</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	c := &amp;Class&#123;</span><br><span class="line">		Title:    <span class="string">&quot;101&quot;</span>,</span><br><span class="line">		Students: <span class="built_in">make</span>([]*Student, <span class="number">0</span>, <span class="number">200</span>),</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">		stu := &amp;Student&#123;</span><br><span class="line">			Name:   fmt.Sprintf(<span class="string">&quot;stu%02d&quot;</span>, i),</span><br><span class="line">			Gender: <span class="string">&quot;男&quot;</span>,</span><br><span class="line">			ID:     i,</span><br><span class="line">		&#125;</span><br><span class="line">		c.Students = <span class="built_in">append</span>(c.Students, stu)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//JSON序列化：结构体--&gt;JSON格式的字符串</span></span><br><span class="line">	data, err := json.Marshal(c)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;json marshal failed&quot;</span>)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;json:%s\n&quot;</span>, data)</span><br><span class="line">	<span class="comment">//JSON反序列化：JSON格式的字符串--&gt;结构体</span></span><br><span class="line">	str := <span class="string">`&#123;&quot;Title&quot;:&quot;101&quot;,&quot;Students&quot;:[&#123;&quot;ID&quot;:0,&quot;Gender&quot;:&quot;男&quot;,&quot;Name&quot;:&quot;stu00&quot;&#125;,&#123;&quot;ID&quot;:1,&quot;Gender&quot;:&quot;男&quot;,&quot;Name&quot;:&quot;stu01&quot;&#125;,&#123;&quot;ID&quot;:2,&quot;Gender&quot;:&quot;男&quot;,&quot;Name&quot;:&quot;stu02&quot;&#125;,&#123;&quot;ID&quot;:3,&quot;Gender&quot;:&quot;男&quot;,&quot;Name&quot;:&quot;stu03&quot;&#125;,&#123;&quot;ID&quot;:4,&quot;Gender&quot;:&quot;男&quot;,&quot;Name&quot;:&quot;stu04&quot;&#125;,&#123;&quot;ID&quot;:5,&quot;Gender&quot;:&quot;男&quot;,&quot;Name&quot;:&quot;stu05&quot;&#125;,&#123;&quot;ID&quot;:6,&quot;Gender&quot;:&quot;男&quot;,&quot;Name&quot;:&quot;stu06&quot;&#125;,&#123;&quot;ID&quot;:7,&quot;Gender&quot;:&quot;男&quot;,&quot;Name&quot;:&quot;stu07&quot;&#125;,&#123;&quot;ID&quot;:8,&quot;Gender&quot;:&quot;男&quot;,&quot;Name&quot;:&quot;stu08&quot;&#125;,&#123;&quot;ID&quot;:9,&quot;Gender&quot;:&quot;男&quot;,&quot;Name&quot;:&quot;stu09&quot;&#125;]&#125;`</span></span><br><span class="line">	c1 := &amp;Class&#123;&#125;</span><br><span class="line">	err = json.Unmarshal([]<span class="keyword">byte</span>(str), c1)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;json unmarshal failed!&quot;</span>)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;%#v\n&quot;</span>, c1)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>结构体标签(tag)</center>"><center>结构体标签(tag)</center></h3>
+<p><code>tag</code>是结构体的元信息，可以在运行时通过反射机制读取出来，<code>tag</code>在结构体字段后定义:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">`key1:&quot;value1&quot; key2:&quot;value2&quot;`</span></span><br></pre></td></tr></table></figure>
+<p><font color=red>注意</font>:结构体编写<code>tag</code>时，必须严格遵循键值对规则。结构体标签的解析代码容错能力很差，一旦格式写错，编译和运行时都不会提示任何错误，通过反射也无法正确取值。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Student 学生</span></span><br><span class="line"><span class="keyword">type</span> Student <span class="keyword">struct</span> &#123;</span><br><span class="line">	ID     <span class="keyword">int</span>    <span class="string">`json:&quot;id&quot;`</span> <span class="comment">//通过指定tag实现json序列化该字段时的key</span></span><br><span class="line">	Gender <span class="keyword">string</span> <span class="comment">//json序列化是默认使用字段名作为key</span></span><br><span class="line">	name   <span class="keyword">string</span> <span class="comment">//私有不能被json包访问</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	s1 := Student&#123;</span><br><span class="line">		ID:     <span class="number">1</span>,</span><br><span class="line">		Gender: <span class="string">&quot;male&quot;</span>,</span><br><span class="line">		name:   <span class="string">&quot;ty&quot;</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	data, err := json.Marshal(s1)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;json marshal failed!&quot;</span>)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;json str:%s\n&quot;</span>, data) <span class="comment">//json str:&#123;&quot;id&quot;:1,&quot;Gender&quot;:&quot;male&quot;&#125;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/12/10/golang%E5%9F%BA%E7%A1%80%E4%B9%8B%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/">
+        <span class="nav-arrow">← </span>
+        
+          golang基础之基本数据类型
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/12/11/golang%E5%9F%BA%E7%A1%80%E4%B9%8B%E6%95%B0%E7%BB%84/">
+        
+          golang基础之数组
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E8%87%AA%E5%AE%9A%E4%B9%89%E7%B1%BB%E5%9E%8B%E5%92%8C%E7%B1%BB%E5%9E%8B%E5%88%AB%E5%90%8D%3C/center%3E"><span class="toc-nav-text">自定义类型和类型别名</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E8%87%AA%E5%AE%9A%E4%B9%89%E7%B1%BB%E5%9E%8B%3C/font%3E"><span class="toc-nav-text">自定义类型</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E7%B1%BB%E5%9E%8B%E5%88%AB%E5%90%8D%3C/font%3E"><span class="toc-nav-text">类型别名</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E7%B1%BB%E5%9E%8B%E5%AE%9A%E4%B9%89%E5%92%8C%E7%B1%BB%E5%9E%8B%E5%88%AB%E5%90%8D%E7%9A%84%E5%8C%BA%E5%88%AB%3C/center%3E"><span class="toc-nav-text">类型定义和类型别名的区别</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E7%BB%93%E6%9E%84%E4%BD%93%3C/center%3E"><span class="toc-nav-text">结构体</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E7%BB%93%E6%9E%84%E4%BD%93%E5%AE%9A%E4%B9%89%3C/font%3E"><span class="toc-nav-text">结构体定义</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E7%BB%93%E6%9E%84%E4%BD%93%E5%AE%9E%E4%BE%8B%E5%8C%96%3C/font%3E"><span class="toc-nav-text">结构体实例化</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%9F%BA%E6%9C%AC%E5%AE%9E%E4%BE%8B%E5%8C%96%3C/font%3E"><span class="toc-nav-text">基本实例化</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%8C%BF%E5%90%8D%E7%BB%93%E6%9E%84%E4%BD%93%3C/font%3E"><span class="toc-nav-text">匿名结构体</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%88%9B%E5%BB%BA%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B%E7%BB%93%E6%9E%84%E4%BD%93%3C/font%3E"><span class="toc-nav-text">创建指针类型结构体</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%8F%96%E7%BB%93%E6%9E%84%E4%BD%93%E5%9C%B0%E5%9D%80%E5%AE%9E%E4%BE%8B%E5%8C%96%3C/font%3E"><span class="toc-nav-text">取结构体地址实例化</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E7%BB%93%E6%9E%84%E4%BD%93%E5%88%9D%E5%A7%8B%E5%8C%96%3C/font%3E"><span class="toc-nav-text">结构体初始化</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E8%AE%BF%E9%97%AE%E6%88%90%E5%91%98%E5%8F%98%E9%87%8F%E7%9A%84%E6%96%B9%E5%BC%8F%E5%88%9D%E5%A7%8B%E5%8C%96%3C/font%3E"><span class="toc-nav-text">访问成员变量的方式初始化</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E4%BD%BF%E7%94%A8%E9%94%AE%E5%80%BC%E5%AF%B9%E5%88%9D%E5%A7%8B%E5%8C%96%3C/font%3E"><span class="toc-nav-text">使用键值对初始化</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E4%BD%BF%E7%94%A8%E5%80%BC%E5%88%97%E8%A1%A8%E5%88%9D%E5%A7%8B%E5%8C%96%3C/font%3E"><span class="toc-nav-text">使用值列表初始化</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%87%BD%E6%95%B0%E5%8F%82%E6%95%B0%E6%98%AF%E5%80%BC%E7%BB%93%E6%9E%84%E4%BD%93%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%87%BD%E6%95%B0%E5%8F%82%E6%95%B0%E6%98%AF%E6%8C%87%E9%92%88%E7%BB%93%E6%9E%84%E4%BD%93%E7%B1%BB%E5%9E%8B%E7%9A%84%E5%8C%BA%E5%88%AB%3C/center%3E"><span class="toc-nav-text">函数参数是值结构体类型与函数参数是指针结构体类型的区别</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E7%BB%93%E6%9E%84%E4%BD%93%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80%3C/center%3E"><span class="toc-nav-text">结构体内存布局</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E7%A9%BA%E7%BB%93%E6%9E%84%E4%BD%93%3C/font%3E"><span class="toc-nav-text">空结构体</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%3C/center%3E"><span class="toc-nav-text">构造函数</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E6%96%B9%E6%B3%95%E5%92%8C%E6%8E%A5%E6%94%B6%E8%80%85%3C/center%3E"><span class="toc-nav-text">方法和接收者</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B%E6%8E%A5%E6%94%B6%E8%80%85%E4%B8%8E%E5%80%BC%E7%B1%BB%E5%9E%8B%E6%8E%A5%E6%94%B6%E8%80%85%3C/center%3E"><span class="toc-nav-text">指针类型接收者与值类型接收者</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B%E6%8E%A5%E5%8F%97%E8%80%85(%E5%B8%B8%E7%94%A8)%3C/font%3E"><span class="toc-nav-text">指针类型接受者(常用)</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%80%BC%E7%B1%BB%E5%9E%8B%E6%8E%A5%E5%8F%97%E8%80%85%3C/font%3E"><span class="toc-nav-text">值类型接受者</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E4%BB%BB%E6%84%8F%E7%B1%BB%E5%9E%8B%E6%B7%BB%E5%8A%A0%E6%96%B9%E6%B3%95%3C/center%3E"><span class="toc-nav-text">任意类型添加方法</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E5%8C%BF%E5%90%8D%E5%AD%97%E6%AE%B5%3C/center%3E"><span class="toc-nav-text">结构体的匿名字段</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%B5%8C%E5%A5%97%E7%BB%93%E6%9E%84%E4%BD%93%3C/center%3E"><span class="toc-nav-text">嵌套结构体</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%B5%8C%E5%A5%97%E5%8C%BF%E5%90%8D%E5%AD%97%E6%AE%B5%3C/center%3E"><span class="toc-nav-text">嵌套匿名字段</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E2%80%9C%E7%BB%A7%E6%89%BF%E2%80%9D%3C/center%3E"><span class="toc-nav-text">结构体的“继承”</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E7%BB%93%E6%9E%84%E4%BD%93%E5%AD%97%E6%AE%B5%E7%9A%84%E5%8F%AF%E8%A7%81%E6%80%A7%3C/center%3E"><span class="toc-nav-text">结构体字段的可见性</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E7%BB%93%E6%9E%84%E4%BD%93%E4%B8%8Ejson%E5%BA%8F%E5%88%97%E5%8C%96%3C/center%3E"><span class="toc-nav-text">结构体与JSON序列化</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E7%BB%93%E6%9E%84%E4%BD%93%E6%A0%87%E7%AD%BE(tag)%3C/center%3E"><span class="toc-nav-text">结构体标签(tag)</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2021/12/11/golang基础之结构体/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>

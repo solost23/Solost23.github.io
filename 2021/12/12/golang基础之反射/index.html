@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      golang基础之反射 | Solost23&#39;s blog
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Solost23's blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>golang基础之反射</h2>
+  <p class="post-date">2021-12-12</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h3 id="<center>变量的内在机制</center>"><center>变量的内在机制</center></h3>
+<p><code>golang</code>中的变量分为两部分:</p>
+<ul>
+<li>类型信息：预先定义好的元信息。</li>
+<li>值信息：程序运行过程中可动态变化。</li>
+</ul>
+<h3 id="<center>反射介绍</center>"><center>反射介绍</center></h3>
+<p>反射是指在程序运行期间对程序本身进行访问和修改的能力。程序在编译时，变量被转换为内存地址，变量名不会被编译器写入到可执行部分。在程序运行时，程序无法获取自身信息。</p>
+<p>支持反射的语言可以在程序编译期将变量的反射信息，如字段名称、类型信息、结构体信息等整合到可执行文件中，并给程序提供访问反射信息，这样就可以在程序运行期间获取类型的反射信息，并且有能力修改它们。</p>
+<p><code>golang</code>在运行期使用 reflect 包访问程序的反射信息。</p>
+<p>在上一篇博客中我们介绍了空接口。空接口可以存储任意类型的变量，那我们如何知道这个空接口保存的数据是什么呢？反射就是在运行时动态的获取一个变量的类型信息和值信息。</p>
+<h3 id="<center>reflect包</center>"><center>reflect包</center></h3>
+<p>在 Go 语言的反射机制中，任何接口值都是由 一个具体类型 和 具体类型的值 两部分组成的（我们在上一篇接口的博客中有介绍相关概念）。在 Go 语言中反射的相关功能由内置的 reflect 包提供，任意接口值在反射中都可以理解为由 reflect.Type 和 reflect.Value 两部分组成，并且 reflect 包提供了 reflect.TypeOf 和 reflect.ValueOf 两个函数来获取任意对象的 Value 和 Type。</p>
+<h3 id="<center>typeof</center>"><center>TypeOf</center></h3>
+<p><code>golang</code>中，使用<code>reflect.TypeOf</code>函数可以获得任意值的类型对象，程序通过类型对象可以访问任意值的类型信息:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;reflect&quot;</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">reflectType</span><span class="params">(x <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	v := reflect.TypeOf(x)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;type:%v\n&quot;</span>, v)</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> a <span class="keyword">float32</span> = <span class="number">3.14</span></span><br><span class="line">	reflectType(a) <span class="comment">// type:float32</span></span><br><span class="line">	<span class="keyword">var</span> b <span class="keyword">int64</span> = <span class="number">100</span></span><br><span class="line">	reflectType(b) <span class="comment">// type:int64</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>type name和type kind</font>"><font color=red>type name和type kind</font></h4>
+<p>在反射中关于类型还划分为两种：类型（Type）和种类（Kind）。因为在 Go 语言中我们可以使用 type 关键字构造很多自定义类型，而种类（Kind）就是指底层的类型，但在反射中，当需要区分指针、结构体等大品种的类型时，就会用到种类（Kind）。举个例子，我们定义了两个指针类型和两个结构体类型，通过反射查看它们的类型和种类。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;reflect&quot;</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="keyword">type</span> myInt <span class="keyword">int64</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">reflectType</span><span class="params">(x <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	t := reflect.TypeOf(x)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;type:%v kind:%v\n&quot;</span>, t.Name(), t.Kind())</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> a *<span class="keyword">float32</span> <span class="comment">// 指针</span></span><br><span class="line">	<span class="keyword">var</span> b myInt    <span class="comment">// 自定义类型</span></span><br><span class="line">	<span class="keyword">var</span> c <span class="keyword">rune</span>     <span class="comment">// 类型别名</span></span><br><span class="line">	reflectType(a) <span class="comment">// type: kind:ptr</span></span><br><span class="line">	reflectType(b) <span class="comment">// type:myInt kind:int64</span></span><br><span class="line">	reflectType(c) <span class="comment">// type:int32 kind:int32</span></span><br><span class="line"> </span><br><span class="line">	<span class="keyword">type</span> person <span class="keyword">struct</span> &#123;</span><br><span class="line">		name <span class="keyword">string</span></span><br><span class="line">		age  <span class="keyword">int</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">type</span> book <span class="keyword">struct</span>&#123; title <span class="keyword">string</span> &#125;</span><br><span class="line">	<span class="keyword">var</span> d = person&#123;</span><br><span class="line">		name: <span class="string">&quot;Solost23&quot;</span>,</span><br><span class="line">		age:  <span class="number">18</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">var</span> e = book&#123;title: <span class="string">&quot;《Go语言开发》&quot;</span>&#125;</span><br><span class="line">	reflectType(d) <span class="comment">// type:person kind:struct</span></span><br><span class="line">	reflectType(e) <span class="comment">// type:book kind:struct</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>golang</code>的反射中像数组、切片、Map、指针等类型的变量，<a target="_blank" rel="noopener" href="http://xn--vnqt02au6u.Name">它们的.Name</a>()都是返回空。在<code>reflect</code>包中定义的<code>Kind</code>类型如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Kind <span class="keyword">uint</span></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">    Invalid Kind = <span class="literal">iota</span>  <span class="comment">// 非法类型</span></span><br><span class="line">    Bool                 <span class="comment">// 布尔型</span></span><br><span class="line">    Int                  <span class="comment">// 有符号整型</span></span><br><span class="line">    Int8                 <span class="comment">// 有符号8位整型</span></span><br><span class="line">    Int16                <span class="comment">// 有符号16位整型</span></span><br><span class="line">    Int32                <span class="comment">// 有符号32位整型</span></span><br><span class="line">    Int64                <span class="comment">// 有符号64位整型</span></span><br><span class="line">    Uint                 <span class="comment">// 无符号整型</span></span><br><span class="line">    Uint8                <span class="comment">// 无符号8位整型</span></span><br><span class="line">    Uint16               <span class="comment">// 无符号16位整型</span></span><br><span class="line">    Uint32               <span class="comment">// 无符号32位整型</span></span><br><span class="line">    Uint64               <span class="comment">// 无符号64位整型</span></span><br><span class="line">    Uintptr              <span class="comment">// 指针</span></span><br><span class="line">    Float32              <span class="comment">// 单精度浮点数</span></span><br><span class="line">    Float64              <span class="comment">// 双精度浮点数</span></span><br><span class="line">    Complex64            <span class="comment">// 64位复数类型</span></span><br><span class="line">    Complex128           <span class="comment">// 128位复数类型</span></span><br><span class="line">    Array                <span class="comment">// 数组</span></span><br><span class="line">    Chan                 <span class="comment">// 通道</span></span><br><span class="line">    Func                 <span class="comment">// 函数</span></span><br><span class="line">    Interface            <span class="comment">// 接口</span></span><br><span class="line">    Map                  <span class="comment">// 映射</span></span><br><span class="line">    Ptr                  <span class="comment">// 指针</span></span><br><span class="line">    Slice                <span class="comment">// 切片</span></span><br><span class="line">    String               <span class="comment">// 字符串</span></span><br><span class="line">    Struct               <span class="comment">// 结构体</span></span><br><span class="line">    UnsafePointer        <span class="comment">// 底层指针</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<h3 id="<center>valueof</center>"><center>ValueOf</center></h3>
+<p>reflect.Valueof () 返回的是 reflect.Value 类型，其中包含了原始值的值信息。reflect.Value 与原始值之间可以互相转换。</p>
+<p>reflect.Value 类型提供的获取原始值的方法如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">方法</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Interface() interface{}</td>
+<td style="text-align:center">将值以 interface {} 类型返回，可以通过类型断言转换为指定类型</td>
+</tr>
+<tr>
+<td style="text-align:center">Int() int64</td>
+<td style="text-align:center">将值以 int 类型返回，所有有符号整型均可以此方式返回</td>
+</tr>
+<tr>
+<td style="text-align:center">Uint() uint64</td>
+<td style="text-align:center">将值以 uint 类型返回，所有无符号整型均可以此方式返回</td>
+</tr>
+<tr>
+<td style="text-align:center">Float() float64</td>
+<td style="text-align:center">将值以双精度（flaot64）类型返回，所有浮点数（flaot32、float64）均可以此方式返回</td>
+</tr>
+<tr>
+<td style="text-align:center">Bool() bool</td>
+<td style="text-align:center">将值以 bool 类型返回</td>
+</tr>
+<tr>
+<td style="text-align:center">Bytes() []bytes</td>
+<td style="text-align:center">将值以字节数组 [] byte 类型返回</td>
+</tr>
+<tr>
+<td style="text-align:center">String() string</td>
+<td style="text-align:center">将值以字符串类型返回</td>
+</tr>
+</tbody>
+</table>
+<h4 id="<font-color=red>通过反射获取值</font>"><font color=red>通过反射获取值</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">reflectValue</span><span class="params">(x <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	v := reflect.ValueOf(x)</span><br><span class="line">	k := v.Kind()</span><br><span class="line">	<span class="keyword">switch</span> k &#123;</span><br><span class="line">	<span class="keyword">case</span> reflect.Int64:</span><br><span class="line">		<span class="comment">// v.Int()从反射中获取整型的原始值，然后通过int64()强制类型转换</span></span><br><span class="line">		fmt.Printf(<span class="string">&quot;type is int64, value is %d\n&quot;</span>, <span class="keyword">int64</span>(v.Int()))</span><br><span class="line">	<span class="keyword">case</span> reflect.Float32:</span><br><span class="line">		<span class="comment">// v.Float()从反射中获取浮点型的原始值，然后通过float32()强制类型转换</span></span><br><span class="line">		fmt.Printf(<span class="string">&quot;type is float32, value is %f\n&quot;</span>, <span class="keyword">float32</span>(v.Float()))</span><br><span class="line">	<span class="keyword">case</span> reflect.Float64:</span><br><span class="line">		<span class="comment">// v.Float()从反射中获取浮点型的原始值，然后通过float64()强制类型转换</span></span><br><span class="line">		fmt.Printf(<span class="string">&quot;type is float64, value is %f\n&quot;</span>, <span class="keyword">float64</span>(v.Float()))</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> a <span class="keyword">float32</span> = <span class="number">3.14</span></span><br><span class="line">	<span class="keyword">var</span> b <span class="keyword">int64</span> = <span class="number">100</span></span><br><span class="line">	reflectValue(a) <span class="comment">// type is float32, value is 3.140000</span></span><br><span class="line">	reflectValue(b) <span class="comment">// type is int64, value is 100</span></span><br><span class="line">	<span class="comment">// 将int类型的原始值转换为reflect.Value类型</span></span><br><span class="line">	c := reflect.ValueOf(<span class="number">10</span>)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;type c :%T\n&quot;</span>, c) <span class="comment">// type c :reflect.Value</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>通过反射设置变量的值</font>"><font color=red>通过反射设置变量的值</font></h4>
+<p>想要在函数中通过反射修改变量的值，需要注意函数传递的是值拷贝，必须传递变量地址才能修改变量值。而反射中使用专有的 Elem () 方法来获取指针对应的值。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;reflect&quot;</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">reflectSetValue1</span><span class="params">(x <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	v := reflect.ValueOf(x)</span><br><span class="line">	<span class="keyword">if</span> v.Kind() == reflect.Int64 &#123;</span><br><span class="line">		v.SetInt(<span class="number">200</span>) <span class="comment">//修改的是副本，reflect包会引发panic</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">reflectSetValue2</span><span class="params">(x <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	v := reflect.ValueOf(x)</span><br><span class="line">	<span class="comment">// 反射中使用 Elem()方法获取指针对应的值</span></span><br><span class="line">	<span class="keyword">if</span> v.Elem().Kind() == reflect.Int64 &#123;</span><br><span class="line">		v.Elem().SetInt(<span class="number">200</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> a <span class="keyword">int64</span> = <span class="number">100</span></span><br><span class="line">	<span class="comment">// reflectSetValue1(a) //panic: reflect: reflect.Value.SetInt using unaddressable value</span></span><br><span class="line">	reflectSetValue2(&amp;a)</span><br><span class="line">	fmt.Println(a)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>isnil()与isvalis()</font>"><font color=red>isNil()与isValis()</font></h4>
+<h5 id="<font-color=red>isnil()</font>"><font color=red>isNil()</font></h5>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(v Value)</span> <span class="title">IsNil</span><span class="params">()</span> <span class="title">bool</span></span></span><br></pre></td></tr></table></figure>
+<p>IsNil () 报告 v 持有的值是否为 nil。v 持有的值的分类必须是通道、函数、接口、映射、指针、切片之一；否则 IsNil 函数会导致 panic。</p>
+<h5 id="<font-color=red>isvalid()</font>"><font color=red>isValid()</font></h5>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(v Value)</span> <span class="title">IsValid</span><span class="params">()</span> <span class="title">bool</span></span></span><br></pre></td></tr></table></figure>
+<p>IsValid () 返回 v 是否持有一个值。如果 v 是 Value 零值会返回假，此时 v 除了 IsValid、String、Kind 之外的方法都会导致 panic。</p>
+<p>Eg:IsNil () 常被用于判断指针是否为空；IsValid () 常被用于判定返回值是否有效。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// *int类型空指针</span></span><br><span class="line">	<span class="keyword">var</span> a *<span class="keyword">int</span></span><br><span class="line">	fmt.Println(<span class="string">&quot;var a *int IsNil:&quot;</span>, reflect.ValueOf(a).IsNil())</span><br><span class="line">	<span class="comment">// nil值</span></span><br><span class="line">	fmt.Println(<span class="string">&quot;nil IsValid:&quot;</span>, reflect.ValueOf(<span class="literal">nil</span>).IsValid())</span><br><span class="line">	<span class="comment">// 实例化一个匿名结构体</span></span><br><span class="line">	b := <span class="keyword">struct</span>&#123;&#125;&#123;&#125;</span><br><span class="line">	<span class="comment">// 尝试从结构体中查找&quot;abc&quot;字段</span></span><br><span class="line">	fmt.Println(<span class="string">&quot;不存在的结构体成员:&quot;</span>, reflect.ValueOf(b).FieldByName(<span class="string">&quot;abc&quot;</span>).IsValid())</span><br><span class="line">	<span class="comment">// 尝试从结构体中查找&quot;abc&quot;方法</span></span><br><span class="line">	fmt.Println(<span class="string">&quot;不存在的结构体方法:&quot;</span>, reflect.ValueOf(b).MethodByName(<span class="string">&quot;abc&quot;</span>).IsValid())</span><br><span class="line">	<span class="comment">// map</span></span><br><span class="line">	c := <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span>&#123;&#125;</span><br><span class="line">	<span class="comment">// 尝试从map中查找一个不存在的键</span></span><br><span class="line">	fmt.Println(<span class="string">&quot;map中不存在的键：&quot;</span>, reflect.ValueOf(c).MapIndex(reflect.ValueOf(<span class="string">&quot;娜扎&quot;</span>)).IsValid())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>结构体反射</center>"><center>结构体反射</center></h3>
+<h4 id="<font-color=red>与结构体相关的方法</font>"><font color=red>与结构体相关的方法</font></h4>
+<p>任意值通过 reflect.TypeOf () 获得反射对象信息后，如果它的类型是结构体，可以通过反射值对象（relect.Type）的 NumField () 和 Field () 方法获得结构体成员的详细信息。</p>
+<p>reflect.Type 中与获取结构体成员相关的方法如下表所示。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">方法</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Field(i int) StructField</td>
+<td style="text-align:center">根据索引，返回索引对应的结构体字段的信息</td>
+</tr>
+<tr>
+<td style="text-align:center">NumField() int</td>
+<td style="text-align:center">返回结构体成员字段数量。</td>
+</tr>
+<tr>
+<td style="text-align:center">FieldByName(name string) (StructField, bool)</td>
+<td style="text-align:center">根据给定字符串返回字符串对应的结构体字段的信息</td>
+</tr>
+<tr>
+<td style="text-align:center">FieldByIndex(index []int) StructField</td>
+<td style="text-align:center">多层成员访问时，根据 [] int 提供的每个结构体的字段索引，返回字段的信息。</td>
+</tr>
+<tr>
+<td style="text-align:center">FieldByNameFunc(match func(string) bool) (StructField,bool)</td>
+<td style="text-align:center">根据传入的匹配函数匹配需要的字段。</td>
+</tr>
+<tr>
+<td style="text-align:center">NumMethod() int</td>
+<td style="text-align:center">返回该类型的方法集中方法的数目</td>
+</tr>
+<tr>
+<td style="text-align:center">Method(int) Method</td>
+<td style="text-align:center">返回该类型方法集中的第 i 个方法</td>
+</tr>
+<tr>
+<td style="text-align:center">MethodByName(string)(Method, bool)</td>
+<td style="text-align:center">根据方法名返回该类型方法集中的方法</td>
+</tr>
+</tbody>
+</table>
+<h3 id="<center>structfield类型</center>"><center>StructField类型</center></h3>
+<p>StructField 类型用来描述结构体中的一个字段的信息。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> StructField <span class="keyword">struct</span> &#123;</span><br><span class="line">    <span class="comment">// Name是字段的名字。PkgPath是非导出字段的包路径，对导出字段该字段为&quot;&quot;。</span></span><br><span class="line">    <span class="comment">// 参见http://golang.org/ref/spec#Uniqueness_of_identifiers</span></span><br><span class="line">    Name    <span class="keyword">string</span></span><br><span class="line">    PkgPath <span class="keyword">string</span></span><br><span class="line">    Type      Type      <span class="comment">// 字段的类型</span></span><br><span class="line">    Tag       StructTag <span class="comment">// 字段的标签</span></span><br><span class="line">    Offset    <span class="keyword">uintptr</span>   <span class="comment">// 字段在结构体中的字节偏移量</span></span><br><span class="line">    Index     []<span class="keyword">int</span>     <span class="comment">// 用于Type.FieldByIndex时的索引切片</span></span><br><span class="line">    Anonymous <span class="keyword">bool</span>      <span class="comment">// 是否匿名字段</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>结构体反射示例</center>"><center>结构体反射示例</center></h3>
+<p>当我们使用反射得到一个结构体数据之后可以通过索引依次获取其字段信息，也可以通过字段名去获取指定的字段信息。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> student <span class="keyword">struct</span> &#123;</span><br><span class="line">	Name  <span class="keyword">string</span> <span class="string">`json:&quot;name&quot;`</span></span><br><span class="line">	Score <span class="keyword">int</span>    <span class="string">`json:&quot;score&quot;`</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	stu1 := student&#123;</span><br><span class="line">		Name:  <span class="string">&quot;Solost23&quot;</span>,</span><br><span class="line">		Score: <span class="number">20</span>,</span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">	t := reflect.TypeOf(stu1)</span><br><span class="line">	fmt.Println(t.Name(), t.Kind()) <span class="comment">// student struct</span></span><br><span class="line">	<span class="comment">// 通过for循环遍历结构体的所有字段信息</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; t.NumField(); i++ &#123;</span><br><span class="line">		field := t.Field(i)</span><br><span class="line">		fmt.Printf(<span class="string">&quot;name:%s index:%d type:%v json tag:%v\n&quot;</span>, field.Name, field.Index, field.Type, field.Tag.Get(<span class="string">&quot;json&quot;</span>))</span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">	<span class="comment">// 通过字段名获取指定结构体字段信息</span></span><br><span class="line">	<span class="keyword">if</span> scoreField, ok := t.FieldByName(<span class="string">&quot;Score&quot;</span>); ok &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;name:%s index:%d type:%v json tag:%v\n&quot;</span>, scoreField.Name, scoreField.Index, scoreField.Type, scoreField.Tag.Get(<span class="string">&quot;json&quot;</span>))</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下来编写一个函数<code>printMethod(s interface&#123;&#125;)</code>来遍历打印<code>s</code>包含的方法:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 给student添加两个方法 Study和Sleep(注意首字母大写)</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s student)</span> <span class="title">Study</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	msg := <span class="string">&quot;好好学习，天天向上。&quot;</span></span><br><span class="line">	fmt.Println(msg)</span><br><span class="line">	<span class="keyword">return</span> msg</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s student)</span> <span class="title">Sleep</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	msg := <span class="string">&quot;好好睡觉，快快长大。&quot;</span></span><br><span class="line">	fmt.Println(msg)</span><br><span class="line">	<span class="keyword">return</span> msg</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">printMethod</span><span class="params">(x <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	t := reflect.TypeOf(x)</span><br><span class="line">	v := reflect.ValueOf(x)</span><br><span class="line"> </span><br><span class="line">	fmt.Println(t.NumMethod())</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; v.NumMethod(); i++ &#123;</span><br><span class="line">		methodType := v.Method(i).Type()</span><br><span class="line">		fmt.Printf(<span class="string">&quot;method name:%s\n&quot;</span>, t.Method(i).Name)</span><br><span class="line">		fmt.Printf(<span class="string">&quot;method:%s\n&quot;</span>, methodType)</span><br><span class="line">		<span class="comment">// 通过反射调用方法传递的参数必须是 []reflect.Value 类型</span></span><br><span class="line">		<span class="keyword">var</span> args = []reflect.Value&#123;&#125;</span><br><span class="line">		v.Method(i).Call(args)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>反射是把双刃剑</center>"><center>反射是把双刃剑</center></h3>
+<p>反射是一个强大并富有表现力的工具，能让我们写出更灵活的代码。但是反射不应该被滥用，原因有三个。</p>
+<ul>
+<li>基于反射的代码是及其脆弱的，反射中的类型错误会在真正运行的时候才引发panic，那很可能是在代码写完的很长时间之后。</li>
+<li>大量使用反射的代码通常难以理解。</li>
+<li>反射性能十分低下，基于反射实现的代码通常比正常代码运行速度慢一到两个数量级。</li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/12/12/golang%E5%9F%BA%E7%A1%80%E4%B9%8B%E6%8E%A5%E5%8F%A3/">
+        <span class="nav-arrow">← </span>
+        
+          golang基础之接口
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/12/12/golang%E5%9F%BA%E7%A1%80%E4%B9%8B%E5%8C%85/">
+        
+          golang基础之包
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%8F%98%E9%87%8F%E7%9A%84%E5%86%85%E5%9C%A8%E6%9C%BA%E5%88%B6%3C/center%3E"><span class="toc-nav-text">变量的内在机制</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%8F%8D%E5%B0%84%E4%BB%8B%E7%BB%8D%3C/center%3E"><span class="toc-nav-text">反射介绍</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Ereflect%E5%8C%85%3C/center%3E"><span class="toc-nav-text">reflect包</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Etypeof%3C/center%3E"><span class="toc-nav-text">TypeOf</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Etype%20name%E5%92%8Ctype%20kind%3C/font%3E"><span class="toc-nav-text">type name和type kind</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Evalueof%3C/center%3E"><span class="toc-nav-text">ValueOf</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E9%80%9A%E8%BF%87%E5%8F%8D%E5%B0%84%E8%8E%B7%E5%8F%96%E5%80%BC%3C/font%3E"><span class="toc-nav-text">通过反射获取值</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E9%80%9A%E8%BF%87%E5%8F%8D%E5%B0%84%E8%AE%BE%E7%BD%AE%E5%8F%98%E9%87%8F%E7%9A%84%E5%80%BC%3C/font%3E"><span class="toc-nav-text">通过反射设置变量的值</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eisnil()%E4%B8%8Eisvalis()%3C/font%3E"><span class="toc-nav-text">isNil()与isValis()</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eisnil()%3C/font%3E"><span class="toc-nav-text">isNil()</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eisvalid()%3C/font%3E"><span class="toc-nav-text">isValid()</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E7%BB%93%E6%9E%84%E4%BD%93%E5%8F%8D%E5%B0%84%3C/center%3E"><span class="toc-nav-text">结构体反射</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E4%B8%8E%E7%BB%93%E6%9E%84%E4%BD%93%E7%9B%B8%E5%85%B3%E7%9A%84%E6%96%B9%E6%B3%95%3C/font%3E"><span class="toc-nav-text">与结构体相关的方法</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Estructfield%E7%B1%BB%E5%9E%8B%3C/center%3E"><span class="toc-nav-text">StructField类型</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E7%BB%93%E6%9E%84%E4%BD%93%E5%8F%8D%E5%B0%84%E7%A4%BA%E4%BE%8B%3C/center%3E"><span class="toc-nav-text">结构体反射示例</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%8F%8D%E5%B0%84%E6%98%AF%E6%8A%8A%E5%8F%8C%E5%88%83%E5%89%91%3C/center%3E"><span class="toc-nav-text">反射是把双刃剑</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2021/12/12/golang基础之反射/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>

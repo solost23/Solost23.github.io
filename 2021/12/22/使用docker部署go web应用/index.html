@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      使用Docker部署Go Web程序 | Solost23&#39;s blog
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Solost23's blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>使用Docker部署Go Web程序</h2>
+  <p class="post-date">2021-12-22</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h3 id="<center>docker部署示例</center>"><center>Docker部署示例</center></h3>
+<h4 id="<font-color=red>`docker`安装</font>"><font color=red><code>Docker</code>安装</font></h4>
+<p><a target="_blank" rel="noopener" href="https://www.runoob.com/docker/macos-docker-install.html">MacOS Docker安装</a></p>
+<h4 id="<font-color=red>准备代码</font>"><font color=red>准备代码</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Hello</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	w.Write([]<span class="keyword">byte</span>(<span class="string">&quot;Hello World!&quot;</span>))</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	http.HandleFunc(<span class="string">&quot;/&quot;</span>, Hello)</span><br><span class="line">	fmt.Println(<span class="string">&quot;server start...&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err := http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>, <span class="literal">nil</span>); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;server start failed, err:%v \n&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><font color=red>注意</font>:项目要完整，下面需要有<code>go.mod</code>文件等，只写一个<code>main.go</code>容器中无法编译。</p>
+<h4 id="<font-color=red>创建`docker`镜像</font>"><font color=red>创建<code>Docker</code>镜像</font></h4>
+<h5 id="<font-color=red>编写`dockerfile`</font>"><font color=red>编写<code>Dockerfile</code></font></h5>
+<p>要创建<code>Docker</code>镜像必须在配置文件中指定步骤，这个文件我们通常称之为<code>Dockerfile</code>，虽然这个文件名可以随意命名，但最好还是使用默认的<code>Dockerfile</code>。</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">FROM golang:alpine</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 为我们的镜像设置必要的环境变量</span><br><span class="line">ENV GO111MODULE=on <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>    CGO<span class="built_in">_</span>ENABLED=0 <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>    GOOS=linux <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>    GOARCH=amd64</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 移动到工作目录：/build</span><br><span class="line">WORKDIR /build</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 将代码复制到容器中</span><br><span class="line">COPY . .</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 将我们的代码编译成二进制可执行文件app</span><br><span class="line">RUN go build -o app .</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 移动到用于存放生成的二进制文件的 /dist 目录</span><br><span class="line">WORKDIR /dist</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 将二进制文件从 /build 目录复制到这里</span><br><span class="line">RUN cp /build/app .</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 声明服务端口</span><br><span class="line">EXPOSE 8080</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 启动容器时运行的命令</span><br><span class="line">CMD [&quot;/dist/app&quot;]</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>构建镜像</font>"><font color=red>构建镜像</font></h4>
+<p>在项目目录下打开<code>shell</code>，执行下面的命令创建镜像，并制定镜像名称为<code>goWebApp</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build . -t goWebApp</span><br></pre></td></tr></table></figure>
+<p>执行下面的命令来运行镜像:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -p 8080:8080 goweb_app</span><br></pre></td></tr></table></figure>
+<p>现在就可以测试一下我们的<code>Web</code>是否正常工作，打开浏览器输入<code>http://localhost:8080</code>就可以能看到我们事先定义的相应内容。</p>
+<h3 id="<center>分阶段构建示例</center>"><center>分阶段构建示例</center></h3>
+<p>我们的<code>Web</code>程序编译后会得到一个可执行文件，其实在最终的镜像中是不需要<code>go</code>编译器的，也就是说我们只需要一个运行最终二进制文件的容器即可。<code>Docker</code>的最佳实践之一是通过仅保留二进制文件来减小镜像大小，为此我们将使用一种称为多阶段构建的技术，这意味着我们将通过多个步骤构建镜像:</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">FROM golang:alpine AS builder</span><br><span class="line"><span class="params">#</span> 为我们的镜像设置必要的环境变量</span><br><span class="line">ENV GO111MODULE=on <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>    CGO<span class="built_in">_</span>ENABLED=0 <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>    GOOS=linux <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>    GOARCH=amd64</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 移动到工作目录：/build</span><br><span class="line">WORKDIR /build</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 将代码复制到容器中</span><br><span class="line">COPY . .</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 将我们的代码编译成二进制可执行文件 app</span><br><span class="line">RUN go build -o app .</span><br><span class="line"> </span><br><span class="line"><span class="params">###################</span></span><br><span class="line"><span class="params">#</span> 接下来创建一个小镜像</span><br><span class="line"><span class="params">###################</span></span><br><span class="line">FROM scratch</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 从builder镜像中把/dist/app 拷贝到当前目录</span><br><span class="line">COPY --from=builder /build/app /</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 需要运行的命令</span><br><span class="line">ENTRYPOINT [&quot;/app&quot;]</span><br></pre></td></tr></table></figure>
+<p>使用这种技术，我们剥离了使用<code>golang:alpine</code>作为编译镜像来编译得到二进制可执行文件的过程，并基于<code>scratch</code>镜像的更多信息，请查看:<a target="_blank" rel="noopener" href="https://hub.docker.com/_/scratch">https://hub.docker.com/_/scratch</a>。</p>
+<h3 id="<center>附带其它文件的部署示例</center>"><center>附带其它文件的部署示例</center></h3>
+<p>这里以<code>go Web</code>中的小清单项目为例，项目的<code>github</code>仓库地址为:<a target="_blank" rel="noopener" href="https://github.com/Solost23/bubble">https://github.com/Solost23/bubble</a>, 如果项目中带有静态文件或配置文件，需要将其拷贝到最终的镜像中，<code>bubble</code>项目用到了静态文件和配置文件，具体目录结构如下:</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">bubble</span><br><span class="line">├── README.md</span><br><span class="line">├── controller</span><br><span class="line">│   └── controller.go</span><br><span class="line">├── dao</span><br><span class="line">│   └── mysql.go</span><br><span class="line">├── go.mod</span><br><span class="line">├── go.sum</span><br><span class="line">├── main.go</span><br><span class="line">├── models</span><br><span class="line">│   └── todo.go</span><br><span class="line">├── routers</span><br><span class="line">│   └── routers.go</span><br><span class="line">├── static</span><br><span class="line">│   ├── css</span><br><span class="line">│   │   ├── app.8eeeaf31.css</span><br><span class="line">│   │   └── chunk-vendors.57db8905.css</span><br><span class="line">│   ├── fonts</span><br><span class="line">│   │   ├── element-icons.535877f5.woff</span><br><span class="line">│   │   └── element-icons.732389de.ttf</span><br><span class="line">│   └── js</span><br><span class="line">│       ├── app.007f9690.js</span><br><span class="line">│       └── chunk-vendors.ddcb6f91.js</span><br><span class="line">└── templates</span><br><span class="line">    ├── favicon.ico</span><br><span class="line">    └── index.html</span><br></pre></td></tr></table></figure>
+<p>我们需要将<code>templates</code>、<code>static</code>两个文件夹中的内容拷贝到最终的镜像中。更新后的<code>Dockerfile</code>文件内容如下:</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">FROM golang:alpine AS builder</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 为我们的镜像设置必要的环境变量</span><br><span class="line">ENV GO111MODULE=on <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>    CGO<span class="built_in">_</span>ENABLED=0 <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>    GOOS=linux <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>    GOARCH=amd64</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 移动到工作目录：/build</span><br><span class="line">WORKDIR /build</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 复制项目中的 go.mod 和 go.sum文件并下载依赖信息</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 设置代理，防止后面因为墙的原因下载go.mod依赖信息超时</span><br><span class="line">RUN go env -w GOPROXY=https://goproxy.io</span><br><span class="line">COPY go.mod .</span><br><span class="line">COPY go.sum .</span><br><span class="line">RUN go mod download</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 将代码复制到容器中</span><br><span class="line">COPY . .</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 将我们的代码编译成二进制可执行文件 bubble</span><br><span class="line">RUN go build -o bubble .</span><br><span class="line"> </span><br><span class="line"><span class="params">###################</span></span><br><span class="line"><span class="params">#</span> 接下来创建一个小镜像</span><br><span class="line"><span class="params">###################</span></span><br><span class="line">FROM scratch</span><br><span class="line"> </span><br><span class="line">COPY ./templates /templates</span><br><span class="line">COPY ./static /static</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 从builder镜像中把/dist/app 拷贝到当前目录</span><br><span class="line">COPY --from=builder /build/bubble /</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 需要运行的命令</span><br><span class="line">ENTRYPOINT [&quot;/bubble&quot;]</span><br></pre></td></tr></table></figure>
+<p><font color=red>注意</font>:这里把<code>COPY静态文件</code>放到了上层，把<code>COPY二进制可执行文件</code>放在下层，争取多使用缓存。</p>
+<h4 id="<font-color=red>关联其它容器</font>"><font color=red>关联其它容器</font></h4>
+<p>因为项目中使用了<code>MySQL</code>, 我们可以使用如下命令启动一个<code>MySQL</code>容器，它的别名为<code>oneMysql</code>; <code>root</code>用户的密码为<code>1234</code>; 内部服务端口为3306, 映射到外部的<code>13306</code>端口。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --name oneMysql -p 13306:3306 -e MYSQL_ROOT_PASSWORD=1234 -d mysql:5.7</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>创建`bubble`数据库的两种方式</font>"><font color=red>创建<code>bubble</code>数据库的两种方式</font></h4>
+<p>当本机有<code>MySQL</code>客户端的时候，进入<code>shell</code>, 然后连接<code>MySQL</code>创建<code>bubble</code>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> CMD</span></span><br><span class="line">mysql -P 13306 -uroot -p1234</span><br><span class="line"><span class="meta"> </span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 创建数据库（不指定utf8中文无法存入）</span></span><br><span class="line">CREATE DATABASE bubble CHARACTER SET utf8;</span><br></pre></td></tr></table></figure>
+<p>本地没有<code>MySQL</code>客户端，进入<code>shell</code>，然后进入容器<code>oneMysql</code>，进入<code>mysql</code>，创建<code>bubble</code>:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入 oneMysql容器</span></span><br><span class="line">docker exec -it oneMysql bash</span><br><span class="line"><span class="meta"> </span></span><br><span class="line"><span class="meta">#</span><span class="bash"> oneMysql终端，因为端口为3306所以可以省略</span></span><br><span class="line">mysql -uroot -p1234</span><br><span class="line"><span class="meta"> </span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 创建数据库bubble</span></span><br><span class="line">CREATE DATABASE bubble CHARACTER SET utf8;</span><br></pre></td></tr></table></figure>
+<p>这里需要修改一下在<code>dao/mysql.go</code>的<code>dsn</code>变量中配置数据库，使它们在内部通过别名（此处为 oneMysql）联通。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dsn := <span class="string">&quot;root:1234@(oneMysql:3306)/bubble&quot;</span></span><br></pre></td></tr></table></figure>
+<p>修改后记得重新构建<code>bubble_app</code>镜像：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build . -t bubble_app</span><br></pre></td></tr></table></figure>
+<p>这里运行<code>bubble_app</code>容器的时候需要使用<code>--link</code>的方式与上面的<code>oneMysql</code>容器关联起来，并将容器中<code>go Web</code>程序使用的端口映射到宿主机端口上，具体命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --link=oneMysql:oneMysql -p 8888:8080 bubble_app</span><br></pre></td></tr></table></figure>
+<h3 id="<center>`dockercompose`模式</center>"><center><code>DockerCompose</code>模式</center></h3>
+<p>除了像上面一样使用<code>--link</code>的方式来关联两个容器之外，还可以使用<code>Docker Compose</code>来定义和运行多个容器。</p>
+<p><code>Docker Compose</code>是用于定义和运行多容器<code>Docker</code>应用程序的工具。通过<code>Compose</code>，你可以使用 <code>YML</code>文件来配置应用程序需要的所有服务。然后，使用一个命令，就可以从<code>YML</code>文件配置中创建并启动所有服务。</p>
+<p>使用<code>Docker Compose</code>基本上有三步:</p>
+<ul>
+<li>使用<code>Dockerfile</code>定义你的应用环境以便可以在任何地方复制。</li>
+<li>定义组成应用程序的服务, <code>docker-compose.yml</code>以便它们可以在隔离的环境中一起运行。</li>
+<li>执行<code>docker-compose up</code>命令来启动并运行整个程序。</li>
+</ul>
+<p>我们的项目需要两个容器分别运行<code>mysql</code>和<code>bubble_app</code>, 我们编写的<code>docker-compose.yml</code>文件内容如下:</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="params">#</span> yaml 配置</span><br><span class="line">version: &quot;3.7&quot;</span><br><span class="line">services:</span><br><span class="line">  mysql8019:</span><br><span class="line">    image: &quot;mysql:8.0.19&quot;</span><br><span class="line">    ports:</span><br><span class="line">      - &quot;33061:3306&quot;</span><br><span class="line">    command: &quot;--default-authentication-plugin=mysql<span class="built_in">_</span>native<span class="built_in">_</span>password --init-file /data/application/init.sql&quot;</span><br><span class="line">    environment:</span><br><span class="line">      MYSQL<span class="built_in">_</span>ROOT<span class="built_in">_</span>PASSWORD: &quot;root1234&quot;</span><br><span class="line">      MYSQL<span class="built_in">_</span>DATABASE: &quot;bubble&quot;</span><br><span class="line">      MYSQL<span class="built_in">_</span>PASSWORD: &quot;root1234&quot;</span><br><span class="line">    volumes:</span><br><span class="line">      - ./init.sql:/data/application/init.sql</span><br><span class="line">  bubble<span class="built_in">_</span>app:</span><br><span class="line">    build: .</span><br><span class="line">    command: sh -c &quot;./wait-for.sh mysql8019:3306 -- ./bubble ./conf/config.ini&quot;</span><br><span class="line">    depends<span class="built_in">_</span>on:</span><br><span class="line">      - mysql8019</span><br><span class="line">    ports:</span><br><span class="line">      - &quot;8888:8888&quot;</span><br></pre></td></tr></table></figure>
+<p>这个<code>Docker Compose</code>文件定义了两个服务: <code>bubble_app</code>和<code>mysql8019</code>, 其中:</p>
+<h4 id="<font-color=red>bubble_app</font>"><font color=red>bubble_app</font></h4>
+<p>使用当前目录下的<code>Dockerfile</code>文件构建镜像，并通过<code>depends_on</code>指定依赖<code>mysql8019</code> 服务，声明服务端口<code>8888</code>并绑定对外<code>8888</code>端口。</p>
+<h4 id="<font-color=red>mysql8019</font>"><font color=red>mysql8019</font></h4>
+<p>mysql8019 服务使用 Docker Hub 的公共 mysql:8.0.19 镜像，内部端口 3306，外部端口 33061。这里需要注意一个问题，我们的 bubble_app 容器需要等待 mysql8019 容器正常启动之后再尝试启动，因为我们的 web 程序在启动的时候会初始化 MySQL 连接，这里共有两个地方要更改，第一个就是我们 Dockerfile 中要把最后一句注释掉：</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="params">#</span> Dockerfile</span><br><span class="line">...</span><br><span class="line"><span class="params">#</span> 需要运行的命令（注释掉这一句，因为需要等MySQL启动之后再启动我们的Web程序）</span><br><span class="line"><span class="params">#</span> ENTRYPOINT [&quot;/bubble&quot;, &quot;conf/config.ini&quot;]</span><br></pre></td></tr></table></figure>
+<p>第二个地方是在<code>bubble_app</code>下面添加如下命令，使用提前编写的<code>wait-for.sh</code>脚本检测<code>mysql8019:3306</code>正常后再执行后续启动<code>Web</code>应用程序的命令:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">command: sh -c &quot;./wait-for.sh mysql8019:3306 -- ./bubble ./conf/config.ini&quot;</span><br></pre></td></tr></table></figure>
+<p>当然，因为我们现在要在 bubble_app 镜像中执行 sh 命令，所以不能使用 scrath 镜像构建了，这里改为使用 debian:stretch-slim，同时还要安装 <a target="_blank" rel="noopener" href="http://wait-for.sh">wait-for.sh</a> 脚本用到的 netcat，最后不要忘了把 <a target="_blank" rel="noopener" href="http://wait-for.sh">wait-for.sh</a> 脚本文件 COPY 到最终的镜像中，并赋予可执行权限。更新后的 Dockerfile 内容如下：</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">FROM golang:alpine AS builder</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 为我们的镜像设置必要的环境变量</span><br><span class="line">ENV GO111MODULE=on <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>    CGO<span class="built_in">_</span>ENABLED=0 <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>    GOOS=linux <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>    GOARCH=amd64</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 移动到工作目录：/build</span><br><span class="line">WORKDIR /build</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 复制项目中的 go.mod 和 go.sum文件并下载依赖信息</span><br><span class="line">COPY go.mod .</span><br><span class="line">COPY go.sum .</span><br><span class="line">RUN go mod download</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 将代码复制到容器中</span><br><span class="line">COPY . .</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 将我们的代码编译成二进制可执行文件 bubble</span><br><span class="line">RUN go build -o bubble .</span><br><span class="line"> </span><br><span class="line"><span class="params">###################</span></span><br><span class="line"><span class="params">#</span> 接下来创建一个小镜像</span><br><span class="line"><span class="params">###################</span></span><br><span class="line">FROM debian:stretch-slim</span><br><span class="line"> </span><br><span class="line">COPY ./wait-for.sh /</span><br><span class="line">COPY ./templates /templates</span><br><span class="line">COPY ./static /static</span><br><span class="line">COPY ./conf /conf</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 从builder镜像中把/dist/app 拷贝到当前目录</span><br><span class="line">COPY --from=builder /build/bubble /</span><br><span class="line"> </span><br><span class="line">RUN set -eux; <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>	apt-get update; <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>	apt-get install -y <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>		--no-install-recommends <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>		netcat; <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>        chmod 755 wait-for.sh</span><br><span class="line"> </span><br><span class="line"><span class="params">#</span> 需要运行的命令</span><br><span class="line"><span class="params">#</span> ENTRYPOINT [&quot;/bubble&quot;, &quot;conf/config.ini&quot;]</span><br></pre></td></tr></table></figure>
+<p>所有的条件都准备就绪后，就可以执行下面的命令跑起来了：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose up</span><br></pre></td></tr></table></figure>
+<h3 id="<center>总结</center>"><center>总结</center></h3>
+<p>使用 Docker 容器能够极大简化我们在配置依赖环境方面的操作，但同时也对我们的技术储备提了更高的要求。对于 Docker 不管你熟悉或者不熟悉，技术发展的车轮都将滚滚向前。</p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+  <a href="/tags#docker" >
+    <span class="tag-code">docker</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/12/22/%E9%83%A8%E7%BD%B2golang%E9%A1%B9%E7%9B%AE%E7%9A%84N%E7%A7%8D%E6%96%B9%E6%B3%95/">
+        <span class="nav-arrow">← </span>
+        
+          部署golang项目的N种方法
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/12/22/%E4%BD%BF%E7%94%A8Air%E5%AE%9E%E7%8E%B0golang%E7%A8%8B%E5%BA%8F%E5%AE%9E%E6%97%B6%E7%83%AD%E9%87%8D%E8%BD%BD/">
+        
+          使用Air实现golang程序实时热重载
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Edocker%E9%83%A8%E7%BD%B2%E7%A4%BA%E4%BE%8B%3C/center%3E"><span class="toc-nav-text">Docker部署示例</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%60docker%60%E5%AE%89%E8%A3%85%3C/font%3E"><span class="toc-nav-text">Docker安装</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%87%86%E5%A4%87%E4%BB%A3%E7%A0%81%3C/font%3E"><span class="toc-nav-text">准备代码</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%88%9B%E5%BB%BA%60docker%60%E9%95%9C%E5%83%8F%3C/font%3E"><span class="toc-nav-text">创建Docker镜像</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E7%BC%96%E5%86%99%60dockerfile%60%3C/font%3E"><span class="toc-nav-text">编写Dockerfile</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E6%9E%84%E5%BB%BA%E9%95%9C%E5%83%8F%3C/font%3E"><span class="toc-nav-text">构建镜像</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E5%88%86%E9%98%B6%E6%AE%B5%E6%9E%84%E5%BB%BA%E7%A4%BA%E4%BE%8B%3C/center%3E"><span class="toc-nav-text">分阶段构建示例</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E9%99%84%E5%B8%A6%E5%85%B6%E5%AE%83%E6%96%87%E4%BB%B6%E7%9A%84%E9%83%A8%E7%BD%B2%E7%A4%BA%E4%BE%8B%3C/center%3E"><span class="toc-nav-text">附带其它文件的部署示例</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%85%B3%E8%81%94%E5%85%B6%E5%AE%83%E5%AE%B9%E5%99%A8%3C/font%3E"><span class="toc-nav-text">关联其它容器</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%88%9B%E5%BB%BA%60bubble%60%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F%3C/font%3E"><span class="toc-nav-text">创建bubble数据库的两种方式</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%60dockercompose%60%E6%A8%A1%E5%BC%8F%3C/center%3E"><span class="toc-nav-text">DockerCompose模式</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Ebubble_app%3C/font%3E"><span class="toc-nav-text">bubble_app</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Emysql8019%3C/font%3E"><span class="toc-nav-text">mysql8019</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3E%E6%80%BB%E7%BB%93%3C/center%3E"><span class="toc-nav-text">总结</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2021/12/22/使用docker部署go web应用/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>

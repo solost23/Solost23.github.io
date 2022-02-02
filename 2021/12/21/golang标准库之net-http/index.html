@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      golang标准库之net/http | Solost23&#39;s blog
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Solost23's blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>golang标准库之net/http</h2>
+  <p class="post-date">2021-12-21</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p><code>golang</code>内置的<code>net/http</code>包提供了<code>HTTP</code>客户端和服务端的实现。</p>
+<h4 id="<font-color=red>http协议</font>"><font color=red>HTTP协议</font></h4>
+<p>超文本传输协议（HTTP, HyperText Transfer Protocol）是互联网上最为广泛的一种网络传输协议，所有的 WWW 文件都必须遵守这个标准。设计 HTTP 最初的目的是为了提供一种发布和接收 HTML 页面的方法。</p>
+<h3 id="<center>http客户端</center>"><center>HTTP客户端</center></h3>
+<h4 id="<font-color=red>基本的http/https请求</font>"><font color=red>基本的HTTP/HTTPS请求</font></h4>
+<p>Get、Head、Post 和 PostForm 函数发出 HTTP/HTTPS 请求。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">resp, err := http.Get(<span class="string">&quot;http://example.com/&quot;</span>)</span><br><span class="line">...</span><br><span class="line">resp, err := http.Post(<span class="string">&quot;http://example.com/upload&quot;</span>, <span class="string">&quot;image/jpeg&quot;</span>, &amp;buf)</span><br><span class="line">...</span><br><span class="line">resp, err := http.PostForm(<span class="string">&quot;http://example.com/form&quot;</span>,</span><br><span class="line">	url.Values&#123;<span class="string">&quot;key&quot;</span>: &#123;<span class="string">&quot;Value&quot;</span>&#125;, <span class="string">&quot;id&quot;</span>: &#123;<span class="string">&quot;123&quot;</span>&#125;&#125;)</span><br></pre></td></tr></table></figure>
+<p>程序在使用完<code>response</code>后必须关闭回复的主体。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">resp, err := http.Get(<span class="string">&quot;http://example.com/&quot;</span>)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">	<span class="comment">// handle error</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">defer</span> resp.Body.Close()</span><br><span class="line">body, err := ioutil.ReadAll(resp.Body)</span><br><span class="line"><span class="comment">// ...</span></span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>get请求示例</font>"><font color=red>GET请求示例</font></h4>
+<p>使用 net/http 包编写一个简单的发送 HTTP 请求的 Client 端，代码如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;io/ioutil&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	resp, err := http.Get(<span class="string">&quot;https://www.baidu.com/&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;get failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> resp.Body.Close()</span><br><span class="line">	body, err := ioutil.ReadAll(resp.Body)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;read from resp.Body failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Print(<span class="keyword">string</span>(body))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将上面的代码保存之后编译成可执行文件，执行后就能在终端打印 <a target="_blank" rel="noopener" href="http://baidu.com">baidu.com</a> 网站首页的内容了，我们的浏览器其实就是一个发送和接收 HTTP 协议数据的客户端，我们平时通过浏览器访问网页其实就是从网站的服务器接收 HTTP 数据，然后浏览器会按照 HTML、CSS 等规则将网页渲染展示出来。</p>
+<h4 id="<font-color=red>带参数的get请求示例</font>"><font color=red>带参数的GET请求示例</font></h4>
+<p>关于 GET 请求的参数需要使用 Go 内置的 net/url 这个标准库来处理。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	apiUrl := <span class="string">&quot;http://127.0.0.1:9090/get&quot;</span></span><br><span class="line">	<span class="comment">// URL param</span></span><br><span class="line">	data := url.Values&#123;&#125;</span><br><span class="line">	data.Set(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;ty&quot;</span>)</span><br><span class="line">	data.Set(<span class="string">&quot;age&quot;</span>, <span class="string">&quot;18&quot;</span>)</span><br><span class="line">	u, err := url.ParseRequestURI(apiUrl)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;parse url requestUrl failed, err:%v\n&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">	u.RawQuery = data.Encode() <span class="comment">// URL encode</span></span><br><span class="line">	fmt.Println(u.String())</span><br><span class="line">	resp, err := http.Get(u.String())</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;post failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> resp.Body.Close()</span><br><span class="line">	b, err := ioutil.ReadAll(resp.Body)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;get resp failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(<span class="keyword">string</span>(b))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对应的<code>Server</code>端<code>HandlerFunc</code>如下:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">getHandler</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	<span class="keyword">defer</span> r.Body.Close()</span><br><span class="line">	data := r.URL.Query()</span><br><span class="line">	fmt.Println(data.Get(<span class="string">&quot;name&quot;</span>))</span><br><span class="line">	fmt.Println(data.Get(<span class="string">&quot;age&quot;</span>))</span><br><span class="line">	answer := <span class="string">`&#123;&quot;status&quot;: &quot;ok&quot;&#125;`</span></span><br><span class="line">	w.Write([]<span class="keyword">byte</span>(answer))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>post请求示例</font>"><font color=red>Post请求示例</font></h4>
+<p>上面演示了使用 net/http 包发送 GET 请求的示例，发送 POST 请求的示例代码如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;io/ioutil&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">	<span class="string">&quot;strings&quot;</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="comment">// net/http post demo</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	url := <span class="string">&quot;http://127.0.0.1:9090/post&quot;</span></span><br><span class="line">	<span class="comment">// 表单数据</span></span><br><span class="line">	<span class="comment">//contentType := &quot;application/x-www-form-urlencoded&quot;</span></span><br><span class="line">	<span class="comment">//data := &quot;name=ty&amp;age=18&quot;</span></span><br><span class="line">	<span class="comment">// json</span></span><br><span class="line">	contentType := <span class="string">&quot;application/json&quot;</span></span><br><span class="line">	data := <span class="string">`&#123;&quot;name&quot;:&quot;ty&quot;,&quot;age&quot;:18&#125;`</span></span><br><span class="line">	resp, err := http.Post(url, contentType, strings.NewReader(data))</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;post failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> resp.Body.Close()</span><br><span class="line">	b, err := ioutil.ReadAll(resp.Body)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;get resp failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(<span class="keyword">string</span>(b))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对应的<code>Server</code>端<code>HandlerFunc</code>如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">postHandler</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	<span class="keyword">defer</span> r.Body.Close()</span><br><span class="line">	<span class="comment">// 1. 请求类型是application/x-www-form-urlencoded时解析form数据</span></span><br><span class="line">	r.ParseForm()</span><br><span class="line">	fmt.Println(r.PostForm) <span class="comment">// 打印form数据</span></span><br><span class="line">	fmt.Println(r.PostForm.Get(<span class="string">&quot;name&quot;</span>), r.PostForm.Get(<span class="string">&quot;age&quot;</span>))</span><br><span class="line">	<span class="comment">// 2. 请求类型是application/json时从r.Body读取数据</span></span><br><span class="line">	b, err := ioutil.ReadAll(r.Body)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;read request.Body failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(<span class="keyword">string</span>(b))</span><br><span class="line">	answer := <span class="string">`&#123;&quot;status&quot;: &quot;ok&quot;&#125;`</span></span><br><span class="line">	w.Write([]<span class="keyword">byte</span>(answer))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>自定义client</font>"><font color=red>自定义Client</font></h4>
+<p>要管理 HTTP 客户端的头域、重定向策略和其他设置，创建一个 Client：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">client := &amp;http.Client&#123;</span><br><span class="line">	CheckRedirect: redirectPolicyFunc,</span><br><span class="line">&#125;</span><br><span class="line">resp, err := client.Get(<span class="string">&quot;http://example.com&quot;</span>)</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line">req, err := http.NewRequest(<span class="string">&quot;GET&quot;</span>, <span class="string">&quot;http://example.com&quot;</span>, <span class="literal">nil</span>)</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line">req.Header.Add(<span class="string">&quot;If-None-Match&quot;</span>, <span class="string">`W/&quot;wyzzy&quot;`</span>)</span><br><span class="line">resp, err := client.Do(req)</span><br><span class="line"><span class="comment">// ...</span></span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>自定义transport</font>"><font color=red>自定义Transport</font></h4>
+<p>要管理代理、TLS 配置、keep-alive、压缩和其他设置，创建一个 Transport：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">tr := &amp;http.Transport&#123;</span><br><span class="line">	TLSClientConfig:    &amp;tls.Config&#123;RootCAs: pool&#125;,</span><br><span class="line">	DisableCompression: <span class="literal">true</span>,</span><br><span class="line">&#125;</span><br><span class="line">client := &amp;http.Client&#123;Transport: tr&#125;</span><br><span class="line">resp, err := client.Get(<span class="string">&quot;https://example.com&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>Client 和 Transsport 类型都可以安全的被多个 goroutine 同时使用。出于效率考虑，应该一次建立、尽量重用。</p>
+<h3 id="<center>http服务端</center>"><center>HTTP服务端</center></h3>
+<h4 id="<font-color=red>默认的server</font>"><font color=red>默认的Server</font></h4>
+<p>ListenAndServer 使用指定的监听地址和处理器启动一个 HTTP 服务端。处理器参数通常是 nil，这表示采用包变量 DefaultServerMux 作为处理器。Handle 和 HandleFunc 函数可以向 DefaultServerMux 添加处理器：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">http.Handle(<span class="string">&quot;/foo&quot;</span>, fooHandler)</span><br><span class="line">http.HandleFunc(<span class="string">&quot;/bar&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	fmt.Fprintf(w, <span class="string">&quot;Hello, %q&quot;</span>, html.EscapeString(r.URL.Path))</span><br><span class="line">&#125;)</span><br><span class="line">log.Fatal(http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>, <span class="literal">nil</span>))</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>默认的server示例</font>"><font color=red>默认的Server示例</font></h4>
+<p>使用<code>golang</code>中的 net/http 包来编写一个简单的接收 HTTP 请求的 Server 端示例，net/http 包是对 net 包的进一步封装，专门用来处理 HTTP 协议的数据。具体的代码如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// http server</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">sayHello</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	fmt.Fprintln(w, <span class="string">&quot;Hello world！&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	http.HandleFunc(<span class="string">&quot;/&quot;</span>, sayHello)</span><br><span class="line">	err := http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>, <span class="literal">nil</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;http server failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>自定义server</font>"><font color=red>自定义Server</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">s := &amp;http.Server&#123;</span><br><span class="line">	Addr:           <span class="string">&quot;:8080&quot;</span>,</span><br><span class="line">	Handler:        myHandler,</span><br><span class="line">	ReadTimeout:    <span class="number">10</span> * time.Second,</span><br><span class="line">	WriteTimeout:   <span class="number">10</span> * time.Second,</span><br><span class="line">	MaxHeaderBytes: <span class="number">1</span> &lt;&lt; <span class="number">20</span>,</span><br><span class="line">&#125;</span><br><span class="line">log.Fatal(s.ListenAndServe())</span><br></pre></td></tr></table></figure>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bstrconv/">
+        <span class="nav-arrow">← </span>
+        
+          golang标准库之strconv
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/12/21/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bhttp-template/">
+        
+          golang标准库之http/template
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Ehttp%E5%8D%8F%E8%AE%AE%3C/font%3E"><span class="toc-nav-text">HTTP协议</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Ehttp%E5%AE%A2%E6%88%B7%E7%AB%AF%3C/center%3E"><span class="toc-nav-text">HTTP客户端</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%9F%BA%E6%9C%AC%E7%9A%84http/https%E8%AF%B7%E6%B1%82%3C/font%3E"><span class="toc-nav-text">基本的HTTP&#x2F;HTTPS请求</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Eget%E8%AF%B7%E6%B1%82%E7%A4%BA%E4%BE%8B%3C/font%3E"><span class="toc-nav-text">GET请求示例</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%B8%A6%E5%8F%82%E6%95%B0%E7%9A%84get%E8%AF%B7%E6%B1%82%E7%A4%BA%E4%BE%8B%3C/font%3E"><span class="toc-nav-text">带参数的GET请求示例</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Epost%E8%AF%B7%E6%B1%82%E7%A4%BA%E4%BE%8B%3C/font%3E"><span class="toc-nav-text">Post请求示例</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E8%87%AA%E5%AE%9A%E4%B9%89client%3C/font%3E"><span class="toc-nav-text">自定义Client</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E8%87%AA%E5%AE%9A%E4%B9%89transport%3C/font%3E"><span class="toc-nav-text">自定义Transport</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Ehttp%E6%9C%8D%E5%8A%A1%E7%AB%AF%3C/center%3E"><span class="toc-nav-text">HTTP服务端</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E9%BB%98%E8%AE%A4%E7%9A%84server%3C/font%3E"><span class="toc-nav-text">默认的Server</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E9%BB%98%E8%AE%A4%E7%9A%84server%E7%A4%BA%E4%BE%8B%3C/font%3E"><span class="toc-nav-text">默认的Server示例</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E8%87%AA%E5%AE%9A%E4%B9%89server%3C/font%3E"><span class="toc-nav-text">自定义Server</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2021/12/21/golang标准库之net-http/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>
