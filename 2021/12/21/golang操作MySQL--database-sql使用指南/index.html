@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="yanm1ng&#39;s blog">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      golang操作MySQL--database/sql使用指南 | Solost23&#39;s blog
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 5.4.1"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>Solost23's blog</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>golang操作MySQL--database/sql使用指南</h2>
+  <p class="post-date">2021-12-21</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h3 id="<center>golang操作mysql</center>"><center>golang操作MySQL</center></h3>
+<p>Go 语言中的 database/sql 包提供了保证 SQL 或类 SQL 数据库的泛用接口，并不提供具体的数据库驱动。使用 database/sql 包时必须注入（至少）一个数据库驱动。</p>
+<p>我们常用的数据库基本上都有完整的第三方实现。例如：<a target="_blank" rel="noopener" href="https://github.com/go-sql-driver/mysql">MySQL 驱动</a></p>
+<h4 id="<font-color=red>下载依赖</font>"><font color=red>下载依赖</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> get -u github.com/<span class="keyword">go</span>-sql-driver/mysql</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>初始化连接</font>"><font color=red>初始化连接</font></h4>
+<p>Open 函数只是验证其参数格式是否正确，实际上并不创建与数据库的连接。如果要检查数据源的名称是否真实有效，应该调用 Ping 方法。</p>
+<p>返回的 DB 对象可以安全地被多个 goroutine 并发使用，并且维护其自己的空闲连接池。因此，Open 函数应该仅被调用一次，很少需要关闭这个 DB 对象。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义一个全局对象db</span></span><br><span class="line"><span class="comment">// db是一个连接池对象</span></span><br><span class="line"><span class="keyword">var</span> db *sql.DB</span><br><span class="line"> </span><br><span class="line"><span class="comment">// 定义一个初始化数据库的函数</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">initDB</span><span class="params">()</span> <span class="params">(err error)</span></span> &#123;</span><br><span class="line">	<span class="comment">// DSN:Data Source Name</span></span><br><span class="line">	dsn := <span class="string">&quot;user:password@tcp(127.0.0.1:3306)/sql_test?charset=utf8mb4&amp;parseTime=True&quot;</span></span><br><span class="line">	<span class="comment">// 不会校验账号密码是否正确</span></span><br><span class="line">	<span class="comment">// 注意！！！这里不要使用:=，我们是给全局变量赋值，然后在main函数中使用全局变量db</span></span><br><span class="line">	db, err = sql.Open(<span class="string">&quot;mysql&quot;</span>, dsn)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 尝试与数据库建立连接（校验dsn是否正确）</span></span><br><span class="line">	err = db.Ping()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	err := initDB() <span class="comment">// 调用输出化数据库的函数</span></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;init db failed,err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">        fmt.Println(<span class="string">&quot;连接数据库成功。。。&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中 sql.DB 是表示连接的数据库对象（结构体实例），它保存了连接数据库相关的所有信息。它内部维护着一个具有零到多个底层连接的连接池，它可以安全地被多个 goroutine 同时使用。</p>
+<h4 id="<font-color=red>setmaxopenconns</font>"><font color=red>SetMaxOpenConns</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(db *DB)</span> <span class="title">SetMaxOpenConns</span><span class="params">(n <span class="keyword">int</span>)</span></span></span><br></pre></td></tr></table></figure>
+<p>SetMaxOpenConns 设置与数据库建立连接的最大数目。如果 n 大于 0 且小于最大闲置连接数，会将最大闲置连接数减小到匹配最大开启连接数的限制。如果 n&lt;=0，不会限制最大开启连接数，默认 0（无限制）。</p>
+<h4 id="<font-color=red>setmaxidleconns</font>"><font color=red>SetMaxIdleConns</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(db *DB)</span> <span class="title">SetMaxIdleConns</span><span class="params">(n <span class="keyword">int</span>)</span></span></span><br></pre></td></tr></table></figure>
+<p>SetMaxIdleConns 设置连接池中的最大闲置连接数。 如果 n 大于最大开启连接数，则新的最大闲置连接数会减小到匹配最大开启连接数的限制。 如果 n&lt;=0，不会保留闲置连接。</p>
+<h3 id="<center>crud</center>"><center>CRUD</center></h3>
+<h4 id="<font-color=red>建库建表</font>"><font color=red>建库建表</font></h4>
+<p>在<code>Mysql</code>中创建一个名为<code>sql_test</code>的数据库并创建一张<code>user</code>数据表:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">CREATE DATABASE sql_test;</span><br><span class="line"></span><br><span class="line">use sql_test;</span><br><span class="line"></span><br><span class="line">CREATE TABLE `user` (</span><br><span class="line">    `id` BIGINT(20) NOT NULL AUTO_INCREMENT,</span><br><span class="line">    `name` VARCHAR(20) DEFAULT &#x27;&#x27;,</span><br><span class="line">    `age` INT(11) DEFAULT &#x27;0&#x27;,</span><br><span class="line">    PRIMARY KEY(`id`)</span><br><span class="line">)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>查询</font>"><font color=red>查询</font></h4>
+<p>为了方便查询，我们事先定义好一个结构体来存储 user 表的数据:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> user <span class="keyword">struct</span> &#123;</span><br><span class="line">	id   <span class="keyword">int</span></span><br><span class="line">	age  <span class="keyword">int</span></span><br><span class="line">	name <span class="keyword">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="<font-color=red>单行查询</font>"><font color=red>单行查询</font></h5>
+<p>单行查询 db.QueryRow () 执行一次查询，并期望返回最多一行结果（即 Row）。QueryRow 总是返回非 nil 的值，直到返回值的 Scan 方法被调用时，才会返回被延迟的错误。(如：未找到结果):</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(db *DB)</span> <span class="title">QueryRow</span><span class="params">(query <span class="keyword">string</span>, args ...<span class="keyword">interface</span>&#123;&#125;)</span> *<span class="title">Row</span></span></span><br></pre></td></tr></table></figure>
+<p>eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 查询单条数据示例</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">queryRowDemo</span><span class="params">()</span></span> &#123;</span><br><span class="line">	sqlStr := <span class="string">&quot;select id, name, age from user where id=?;&quot;</span></span><br><span class="line">	<span class="keyword">var</span> u user</span><br><span class="line">        <span class="comment">// 从连接池中拿一个连接出来去数据库查询单条记录</span></span><br><span class="line">	<span class="comment">// 非常重要：确保QueryRow之后调用Scan方法，否则持有的数据库链接不会被释放，Scan方法中有关闭数据库连接，归还连接到db连接池。</span></span><br><span class="line">	err := db.QueryRow(sqlStr, <span class="number">1</span>).Scan(&amp;u.id, &amp;u.name, &amp;u.age)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;scan failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;id:%d name:%s age:%d\n&quot;</span>, u.id, u.name, u.age)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="<font-color=red>多行查询</font>"><font color=red>多行查询</font></h5>
+<p>多行查询 db.Query () 执行一次查询，返回多行结果（即 Rows），一般用于执行 select 命令。参数 args 表示 query 中的占位参数：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(db *DB)</span> <span class="title">Query</span><span class="params">(query <span class="keyword">string</span>, args ...<span class="keyword">interface</span>&#123;&#125;)</span> <span class="params">(*Rows, error)</span></span></span><br></pre></td></tr></table></figure>
+<p>eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 查询多条数据示例</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">queryMultiRowDemo</span><span class="params">()</span></span> &#123;</span><br><span class="line">	sqlStr := <span class="string">&quot;select id, name, age from user where id &gt; ?&quot;</span></span><br><span class="line">	rows, err := db.Query(sqlStr, <span class="number">0</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;query failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 非常重要：关闭rows释放持有的数据库链接</span></span><br><span class="line">	<span class="keyword">defer</span> rows.Close()</span><br><span class="line"> </span><br><span class="line">	<span class="comment">// 循环读取结果集中的数据</span></span><br><span class="line">	<span class="keyword">for</span> rows.Next() &#123;</span><br><span class="line">		<span class="keyword">var</span> u user</span><br><span class="line">		err := rows.Scan(&amp;u.id, &amp;u.name, &amp;u.age)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			fmt.Printf(<span class="string">&quot;scan failed, err:%v\n&quot;</span>, err)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;id:%d name:%s age:%d\n&quot;</span>, u.id, u.name, u.age)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>插入</font>"><font color=red>插入</font></h4>
+<p>插入、更新和删除都使用<code>Exec</code>方法:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(db *DB)</span> <span class="title">Exec</span><span class="params">(query <span class="keyword">string</span>, args ...<span class="keyword">interface</span>&#123;&#125;)</span> <span class="params">(Result, error)</span></span></span><br></pre></td></tr></table></figure>
+<p>Exec 执行一次命令（包括查询、删除、更新、插入等），返回的 Result 是对已执行的 SQL 命令的总结。参数 args 表示 query 中的占位参数。</p>
+<p>eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 插入数据</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">insertRowDemo</span><span class="params">()</span></span> &#123;</span><br><span class="line">	sqlStr := <span class="string">&quot;insert into user(name, age) values (?,?)&quot;</span></span><br><span class="line">	ret, err := db.Exec(sqlStr, <span class="string">&quot;王五&quot;</span>, <span class="number">38</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;insert failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	theID, err := ret.LastInsertId() <span class="comment">// 新插入数据的id</span></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;get lastinsert ID failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;insert success, the id is %d.\n&quot;</span>, theID)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>更新</font>"><font color=red>更新</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 更新数据</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">updateRowDemo</span><span class="params">()</span></span> &#123;</span><br><span class="line">	sqlStr := <span class="string">&quot;update user set age=? where id = ?&quot;</span></span><br><span class="line">	ret, err := db.Exec(sqlStr, <span class="number">39</span>, <span class="number">3</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;update failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	n, err := ret.RowsAffected() <span class="comment">// 操作影响的行数</span></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;get RowsAffected failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;update success, affected rows:%d\n&quot;</span>, n)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>删除</font>"><font color=red>删除</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 删除数据</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">deleteRowDemo</span><span class="params">()</span></span> &#123;</span><br><span class="line">	sqlStr := <span class="string">&quot;delete from user where id = ?&quot;</span></span><br><span class="line">	ret, err := db.Exec(sqlStr, <span class="number">3</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;delete failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	n, err := ret.RowsAffected() <span class="comment">// 操作影响的行数</span></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;get RowsAffected failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;delete success, affected rows:%d\n&quot;</span>, n)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="<center>mysql预处理</center>"><center>MySQL预处理</center></h3>
+<h4 id="<font-color=red>什么是预处理?</font>"><font color=red>什么是预处理?</font></h4>
+<p>普通<code>SQL</code>语句执行过程:</p>
+<ul>
+<li>客户端对 SQL 语句进行占位符替换得到完整的 SQL 语句。</li>
+<li>客户端发送完整 SQL 语句到 MySQL 服务端。</li>
+<li>MySQL 服务端执行完整的 SQL 语句并将结果返回给客户端。</li>
+</ul>
+<p>预处理执行过程:</p>
+<ul>
+<li>把 SQL 语句分成两部分，命令部分与数据部分。</li>
+<li>先把命令部分发送给 MySQL 服务端，MySQL 服务端进行 SQL 预处理。</li>
+<li>然后把数据部分发送给 MySQL 服务端，MySQL 服务端对 SQL 语句进行占位符替换。</li>
+<li>MySQL 服务端执行完整的 SQL 语句并将结果返回给客户端。</li>
+</ul>
+<h4 id="<font-color=red>为什么要预处理?</font>"><font color=red>为什么要预处理?</font></h4>
+<ul>
+<li>
+<p>优化 MySQL 服务器重复执行 SQL 的方法，可以提升服务器性能，提前让服务器编译，一次编译多次执行，节省后续编译的成本。</p>
+</li>
+<li>
+<p>避免 SQL 注入问题。</p>
+</li>
+</ul>
+<h4 id="<font-color=red>golnag实现mysql预处理</font>"><font color=red>golnag实现MySQL预处理</font></h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(db *DB)</span> <span class="title">Prepare</span><span class="params">(query <span class="keyword">string</span>)</span> <span class="params">(*Stmt, error)</span></span></span><br></pre></td></tr></table></figure>
+<p>Prepare 方法会将 sql 语句发送给 MySQL 服务端，返回一个准备好的状态用于之后的查询和命令。返回值可以同时执行多个查询和命令。</p>
+<p>eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 预处理查询示例</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">prepareQueryDemo</span><span class="params">()</span></span> &#123;</span><br><span class="line">	sqlStr := <span class="string">&quot;select id, name, age from user where id &gt; ?&quot;</span></span><br><span class="line">	stmt, err := db.Prepare(sqlStr)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;prepare failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> stmt.Close()</span><br><span class="line">	rows, err := stmt.Query(<span class="number">0</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;query failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> rows.Close()</span><br><span class="line">	<span class="comment">// 循环读取结果集中的数据</span></span><br><span class="line">	<span class="keyword">for</span> rows.Next() &#123;</span><br><span class="line">		<span class="keyword">var</span> u user</span><br><span class="line">		err := rows.Scan(&amp;u.id, &amp;u.name, &amp;u.age)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			fmt.Printf(<span class="string">&quot;scan failed, err:%v\n&quot;</span>, err)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;id:%d name:%s age:%d\n&quot;</span>, u.id, u.name, u.age)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 预处理插入示例</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">prepareInsertDemo</span><span class="params">()</span></span> &#123;</span><br><span class="line">	sqlStr := <span class="string">&quot;insert into user(name, age) values (?,?)&quot;</span></span><br><span class="line">	stmt, err := db.Prepare(sqlStr)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;prepare failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> stmt.Close()</span><br><span class="line">	_, err = stmt.Exec(<span class="string">&quot;ty&quot;</span>, <span class="number">22</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;insert failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	_, err = stmt.Exec(<span class="string">&quot;张三&quot;</span>, <span class="number">18</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;insert failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(<span class="string">&quot;insert success.&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>sql注入问题</font>"><font color=red>SQL注入问题</font></h4>
+<h5 id="<font-color=red>任何时候都不应该自己拼接sql语句!</font>"><font color=red>任何时候都不应该自己拼接SQL语句!</font></h5>
+<p>eg:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// sql注入示例</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">sqlInjectDemo</span><span class="params">(name <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	sqlStr := fmt.Sprintf(<span class="string">&quot;select id, name, age from user where name=&#x27;%s&#x27;&quot;</span>, name)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;SQL:%s\n&quot;</span>, sqlStr)</span><br><span class="line">	<span class="keyword">var</span> u user</span><br><span class="line">	err := db.QueryRow(sqlStr).Scan(&amp;u.id, &amp;u.name, &amp;u.age)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;exec failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;user:%#v\n&quot;</span>, u)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时以下字符都可以引发<code>SQL</code>注入问题:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sqlInjectDemo(&quot;xxx&#x27; or 1=1#&quot;)</span><br><span class="line">sqlInjectDemo(&quot;xxx&#x27; union select * from user #&quot;)</span><br><span class="line">sqlInjectDemo(&quot;xxx&#x27; and (select count(*) from user) &lt;10 #&quot;)</span><br></pre></td></tr></table></figure>
+<p>补充:不同数据库中，<code>SQL</code>语句的占位符语法不尽相同。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">数据库</th>
+<th style="text-align:center">占位符语法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">MySQL</td>
+<td style="text-align:center">?</td>
+</tr>
+<tr>
+<td style="text-align:center">PostgreSQL</td>
+<td style="text-align:center"><span class="markdown-them-math-inline">$1，$</span>2 等</td>
+</tr>
+<tr>
+<td style="text-align:center">SQLite</td>
+<td style="text-align:center">? 和 $1</td>
+</tr>
+<tr>
+<td style="text-align:center">Oracle</td>
+<td style="text-align:center">:name</td>
+</tr>
+</tbody>
+</table>
+<h3 id="<center>golang实现`mysql`事务</cente>"><center>golang实现<code>MySQL</code>事务</cente></h3>
+<h4 id="<font-color=red>什么是事务？</font>"><font color=red>什么是事务？</font></h4>
+<p>事务：一个最小的不可再分的工作单元；通常一个事务对应一个完整的业务 (例如银行账户转账业务，该业务就是一个最小的工作单元)，同时这个完整的业务需要执行多次的 DML (insert、update、delete) 语句共同联合完成。A 转账给 B，这里面就需要执行两次 update 操作。</p>
+<p>在 MySQL 中只有使用了 <code>Innodb</code> 数据库引擎的数据库或表才支持事务。事务处理可以用来维护数据库的完整性，保证成批的 SQL 语句要么全部执行，要么全部不执行。</p>
+<h4 id="<font-color=red>事务的acid</font>"><font color=red>事务的ACID</font></h4>
+<p>通常事务必须满足 4 个条件（ACID）：原子性（Atomicity，或称不可分割性）、一致性（Consistency）、隔离性（Isolation，又称独立性）、持久性（Durability）。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">条件</th>
+<th style="text-align:center">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">原子性</td>
+<td style="text-align:center">一个事务（transaction）中的所有操作，要么全部完成，要么全部不完成，不会结束在中间某个环节。事务在执行过程中发生错误，会被回滚（Rollback）到事务开始前的状态，就像这个事务从来没有执行过一样。</td>
+</tr>
+<tr>
+<td style="text-align:center">一致性</td>
+<td style="text-align:center">在事务开始之前和事务结束以后，数据库的完整性没有被破坏。这表示写入的资料必须完全符合所有的预设规则，这包含资料的精确度、串联性以及后续数据库可以自发性地完成预定的工作。</td>
+</tr>
+<tr>
+<td style="text-align:center">隔离性</td>
+<td style="text-align:center">数据库允许多个并发事务同时对其数据进行读写和修改的能力，隔离性可以防止多个事务并发执行时由于交叉执行而导致数据的不一致。事务隔离分为不同级别，包括读未提交（Read uncommitted）、读提交（read committed）、可重复读（repeatable read）和串行化（Serializable）</td>
+</tr>
+<tr>
+<td style="text-align:center">持久化</td>
+<td style="text-align:center">事务处理结束后，对数据的修改就是永久的，即便系统故障也不会丢失。</td>
+</tr>
+</tbody>
+</table>
+<h4 id="<font-color=red>事务相关方法</font>"><font color=red>事务相关方法</font></h4>
+<p>Go 语言中使用以下三个方法实现 MySQL 中的事务操作。开始事务：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(db *DB)</span> <span class="title">Begin</span><span class="params">()</span> <span class="params">(*Tx, error)</span></span></span><br></pre></td></tr></table></figure>
+<p>提交事务：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(tx *Tx)</span> <span class="title">Commit</span><span class="params">()</span> <span class="title">error</span></span></span><br></pre></td></tr></table></figure>
+<p>回滚事务（将之前的操作取消然后执行 Rollback () 函数后面的一条语句）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(tx *Tx)</span> <span class="title">Rollback</span><span class="params">()</span> <span class="title">error</span></span></span><br></pre></td></tr></table></figure>
+<h4 id="<font-color=red>事务示例</font>"><font color=red>事务示例</font></h4>
+<p>下面的代码演示了一个简单的事务操作，该事务操作能够确保两次更新要么同时成功要么同时失败，不会存在中间状态：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 事务操作示例</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">transactionDemo</span><span class="params">()</span></span> &#123;</span><br><span class="line">	tx, err := db.Begin() <span class="comment">// 开启事务</span></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> tx != <span class="literal">nil</span> &#123;</span><br><span class="line">			tx.Rollback() <span class="comment">// 回滚</span></span><br><span class="line">		&#125;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;begin trans failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	sqlStr1 := <span class="string">&quot;Update user set age=30 where id=?&quot;</span></span><br><span class="line">	ret1, err := tx.Exec(sqlStr1, <span class="number">2</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		tx.Rollback() <span class="comment">// 回滚</span></span><br><span class="line">		fmt.Printf(<span class="string">&quot;exec sql1 failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	affRow1, err := ret1.RowsAffected()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		tx.Rollback() <span class="comment">// 回滚</span></span><br><span class="line">		fmt.Printf(<span class="string">&quot;exec ret1.RowsAffected() failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">	sqlStr2 := <span class="string">&quot;Update user set age=40 where id=?&quot;</span></span><br><span class="line">	ret2, err := tx.Exec(sqlStr2, <span class="number">3</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		tx.Rollback() <span class="comment">// 回滚</span></span><br><span class="line">		fmt.Printf(<span class="string">&quot;exec sql2 failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	affRow2, err := ret2.RowsAffected()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		tx.Rollback() <span class="comment">// 回滚</span></span><br><span class="line">		fmt.Printf(<span class="string">&quot;exec ret1.RowsAffected() failed, err:%v\n&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">	fmt.Println(affRow1, affRow2)</span><br><span class="line">	<span class="keyword">if</span> affRow1 == <span class="number">1</span> &amp;&amp; affRow2 == <span class="number">1</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;事务提交啦...&quot;</span>)</span><br><span class="line">		tx.Commit() <span class="comment">// 提交事务</span></span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		tx.Rollback()</span><br><span class="line">		fmt.Println(<span class="string">&quot;事务回滚啦...&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line"> </span><br><span class="line">	fmt.Println(<span class="string">&quot;exec trans success!&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#golang" >
+    <span class="tag-code">golang</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2021/12/20/golang%E6%A0%87%E5%87%86%E5%BA%93%E4%B9%8Bfmt%E4%B8%8E%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6/">
+        <span class="nav-arrow">← </span>
+        
+          golang标准库之fmt与格式化字符
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2021/12/21/gin%E6%A1%86%E6%9E%B6%E8%B7%AF%E7%94%B1%E6%8B%86%E5%88%86%E4%B8%8E%E6%B3%A8%E5%86%8C/">
+        
+          gin框架路由拆分与注册
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Egolang%E6%93%8D%E4%BD%9Cmysql%3C/center%3E"><span class="toc-nav-text">golang操作MySQL</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E4%B8%8B%E8%BD%BD%E4%BE%9D%E8%B5%96%3C/font%3E"><span class="toc-nav-text">下载依赖</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%88%9D%E5%A7%8B%E5%8C%96%E8%BF%9E%E6%8E%A5%3C/font%3E"><span class="toc-nav-text">初始化连接</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Esetmaxopenconns%3C/font%3E"><span class="toc-nav-text">SetMaxOpenConns</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Esetmaxidleconns%3C/font%3E"><span class="toc-nav-text">SetMaxIdleConns</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Ecrud%3C/center%3E"><span class="toc-nav-text">CRUD</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%BB%BA%E5%BA%93%E5%BB%BA%E8%A1%A8%3C/font%3E"><span class="toc-nav-text">建库建表</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E6%9F%A5%E8%AF%A2%3C/font%3E"><span class="toc-nav-text">查询</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%8D%95%E8%A1%8C%E6%9F%A5%E8%AF%A2%3C/font%3E"><span class="toc-nav-text">单行查询</span></a></li><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%A4%9A%E8%A1%8C%E6%9F%A5%E8%AF%A2%3C/font%3E"><span class="toc-nav-text">多行查询</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E6%8F%92%E5%85%A5%3C/font%3E"><span class="toc-nav-text">插入</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E6%9B%B4%E6%96%B0%3C/font%3E"><span class="toc-nav-text">更新</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E5%88%A0%E9%99%A4%3C/font%3E"><span class="toc-nav-text">删除</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Emysql%E9%A2%84%E5%A4%84%E7%90%86%3C/center%3E"><span class="toc-nav-text">MySQL预处理</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E4%BB%80%E4%B9%88%E6%98%AF%E9%A2%84%E5%A4%84%E7%90%86?%3C/font%3E"><span class="toc-nav-text">什么是预处理?</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E9%A2%84%E5%A4%84%E7%90%86?%3C/font%3E"><span class="toc-nav-text">为什么要预处理?</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Egolnag%E5%AE%9E%E7%8E%B0mysql%E9%A2%84%E5%A4%84%E7%90%86%3C/font%3E"><span class="toc-nav-text">golnag实现MySQL预处理</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3Esql%E6%B3%A8%E5%85%A5%E9%97%AE%E9%A2%98%3C/font%3E"><span class="toc-nav-text">SQL注入问题</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-5"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E4%BB%BB%E4%BD%95%E6%97%B6%E5%80%99%E9%83%BD%E4%B8%8D%E5%BA%94%E8%AF%A5%E8%87%AA%E5%B7%B1%E6%8B%BC%E6%8E%A5sql%E8%AF%AD%E5%8F%A5!%3C/font%3E"><span class="toc-nav-text">任何时候都不应该自己拼接SQL语句!</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%3Ccenter%3Egolang%E5%AE%9E%E7%8E%B0%60mysql%60%E4%BA%8B%E5%8A%A1%3C/cente%3E"><span class="toc-nav-text">golang实现MySQL事务</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E4%BB%80%E4%B9%88%E6%98%AF%E4%BA%8B%E5%8A%A1%EF%BC%9F%3C/font%3E"><span class="toc-nav-text">什么是事务？</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E4%BA%8B%E5%8A%A1%E7%9A%84acid%3C/font%3E"><span class="toc-nav-text">事务的ACID</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E4%BA%8B%E5%8A%A1%E7%9B%B8%E5%85%B3%E6%96%B9%E6%B3%95%3C/font%3E"><span class="toc-nav-text">事务相关方法</span></a></li><li class="toc-nav-item toc-nav-level-4"><a class="toc-nav-link" href="#%3Cfont-color=red%3E%E4%BA%8B%E5%8A%A1%E7%A4%BA%E4%BE%8B%3C/font%3E"><span class="toc-nav-text">事务示例</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2021/12/21/golang操作MySQL--database-sql使用指南/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2022 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>
